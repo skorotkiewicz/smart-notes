@@ -2,18 +2,13 @@
 
 A modern, AI-powered note-taking application that automatically analyzes and organizes your thoughts with intelligent task prioritization.
 
+![home1](images/home2.png "Home Page")
+
 <details>
 <summary>Screenshot - Example Task</summary>
 
 ![task1](images/task1.png "Example Task")
 </details>
-
-<details>
-<summary>Screenshot - Home Page</summary>
-
-![home1](images/home1.png "Home Page")
-</details>
-
 
 ## Features
 
@@ -134,7 +129,7 @@ src/
 
 ## License
 
-This project is private and proprietary. All rights reserved.
+MIT
 
 ## Troubleshooting
 

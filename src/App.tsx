@@ -47,7 +47,6 @@ function App() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
       <ConnectionStatus key={configKey} onOpenConfig={() => setIsConfigOpen(true)} />
-
       <div className="container mx-auto px-4 py-8">
         <Header totalNotes={totalActiveNotes} urgentCount={urgentCount} />
 
@@ -60,7 +59,6 @@ function App() {
           onOpenDetails={handleOpenDetails}
         />
       </div>
-
       {urgentCount > 0 && (
         <div className="fixed bottom-4 left-4 right-4 md:left-auto md:right-4 md:w-80">
           <div className="bg-red-500 text-white p-4 rounded-xl shadow-lg">
@@ -81,7 +79,6 @@ function App() {
           </div>
         </div>
       )}
-
       <TaskDetailModal
         // biome-ignore lint/style/noNonNullAssertion: <!>
         note={selectedNote!}
@@ -89,12 +86,12 @@ function App() {
         onClose={handleCloseDetails}
         onUpdateNote={handleUpdateNote}
       />
-
       <ConfigModal
         isOpen={isConfigOpen}
         onClose={() => setIsConfigOpen(false)}
         onConfigUpdate={handleConfigUpdate}
       />
+      version: {import.meta.env.VITE_APP_VERSION}
     </div>
   );
 }
