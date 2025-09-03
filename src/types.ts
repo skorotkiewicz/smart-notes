@@ -17,6 +17,17 @@ export interface OllamaConfig {
   model: string;
 }
 
+export interface GeminiConfig {
+  apikey: string;
+  model: string;
+}
+
+export interface AIConfig {
+  provider: "ollama" | "gemini";
+  ollama: OllamaConfig;
+  gemini: GeminiConfig;
+}
+
 export interface OllamaModel {
   name: string;
   size: number;
@@ -30,4 +41,14 @@ export interface OllamaResponse {
   summary: string;
   actionItems?: string[];
   dueContext?: string;
+}
+
+export interface GeminiResponse {
+  candidates?: Array<{
+    content?: {
+      parts?: Array<{
+        text?: string;
+      }>;
+    };
+  }>;
 }

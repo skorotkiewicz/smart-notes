@@ -9,7 +9,7 @@ import { useNotes } from "./hooks/useNotes";
 import type { SmartNote } from "./types";
 
 function App() {
-  const { notes, isAnalyzing, addNote, toggleComplete, deleteNote, getPrioritizedNotes } =
+  const { notes, isAnalyzing, addNote, updateNote, toggleComplete, deleteNote, getPrioritizedNotes } =
     useNotes();
 
   const [selectedNote, setSelectedNote] = useState<SmartNote | null>(null);
@@ -30,6 +30,11 @@ function App() {
 
   const handleConfigUpdate = () => {
     setConfigKey((prev) => prev + 1); // Force re-render to update connection status
+  };
+
+  const handleUpdateNote = async (updatedNote: SmartNote) => {
+    await updateNote(updatedNote);
+    setSelectedNote(updatedNote); // Update selected note to reflect changes
   };
 
   return (
@@ -74,6 +79,7 @@ function App() {
         note={selectedNote!}
         isOpen={selectedNote !== null}
         onClose={handleCloseDetails}
+        onUpdateNote={handleUpdateNote}
       />
 
       <ConfigModal

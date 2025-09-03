@@ -57,6 +57,11 @@ export const useNotes = () => {
     setNotes((prev) => prev.map((n) => (n.id === id ? updatedNote : n)));
   };
 
+  const updateNote = async (updatedNote: SmartNote) => {
+    await storageService.updateNote(updatedNote);
+    setNotes((prev) => prev.map((n) => (n.id === updatedNote.id ? updatedNote : n)));
+  };
+
   const deleteNote = async (id: string) => {
     await storageService.deleteNote(id);
     setNotes((prev) => prev.filter((n) => n.id !== id));
@@ -82,6 +87,7 @@ export const useNotes = () => {
     isLoading,
     isAnalyzing,
     addNote,
+    updateNote,
     toggleComplete,
     deleteNote,
     getPrioritizedNotes,

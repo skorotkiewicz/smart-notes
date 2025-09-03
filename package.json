@@ -10,10 +10,15 @@
 	},
 	"dependencies": {
 		"@tailwindcss/vite": "^4.1.12",
+		"@uiw/react-md-editor": "^4.0.8",
+		"hast-util-to-jsx-runtime": "^2.3.6",
 		"idb-keyval": "^6.2.2",
 		"lucide-react": "^0.542.0",
 		"react": "^19.1.1",
 		"react-dom": "^19.1.1",
+		"react-markdown": "^10.1.0",
+		"remark-gfm": "^4.0.1",
+		"shiki": "^3.12.2",
 		"tailwindcss": "^4.1.12"
 	},
 	"devDependencies": {

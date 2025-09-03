@@ -1,0 +1,65 @@
+.codeblock {
+  margin: 1rem 0;
+  border-radius: 0.5rem;
+  overflow: hidden;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+  border: 1px solid #404040; /* neutral-700 */
+  background: #0a0a0a;
+}
+
+.codeblock-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #171717; /* neutral-900 */
+  color: #e5e5e5; /* neutral-200 */
+  font-family: monospace;
+  font-size: 0.75rem;
+  padding: 0.25rem 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.codeblock-lang {
+  font-weight: 500;
+}
+
+.copy-btn {
+  transition: color 0.2s ease;
+  color: #60a5fa; /* blue-400 */
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.copy-btn:hover {
+  color: #93c5fd; /* blue-300 */
+}
+
+.copy-btn.copied {
+  color: #4ade80; /* green-400 */
+}
+
+.codeblock-pre {
+  /*background: #0a0a0a;*/ /* neutral-950 */
+  /* padding: 0.75rem; */
+  padding: 0 0 0 0.75rem;
+  font-size: 0.875rem;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.codeblock code {
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.codeblock .loading {
+  color: #737373; /* neutral-500 */
+}
+
+.shiki {
+  /* biome-ignore lint/complexity/noImportantStyles: <> */
+  background-color: transparent !important;
+}

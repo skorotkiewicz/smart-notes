@@ -1,12 +1,36 @@
-import { useState } from "react";
-import { X, Brain, List, Target, Package, MessageCircle } from "lucide-react";
+import { useState, useEffect } from "react";
+import {
+  X,
+  Brain,
+  List,
+  Target,
+  Package,
+  MessageCircle,
+  History,
+  Edit2,
+  Save,
+  XCircle,
+} from "lucide-react";
+import { get, set } from "idb-keyval";
+import MDEditor from "@uiw/react-md-editor";
+import Markdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import type { SmartNote } from "../types";
 import { ollamaService } from "../services/ollama";
+
 
 interface TaskDetailModalProps {
   note: SmartNote;
   isOpen: boolean;
   onClose: () => void;
+  onUpdateNote?: (updatedNote: SmartNote) => void;
+}
+
+interface ChatMessage {
+  id: string;
+  question: string;
+  response: string;
+  timestamp: number;
 }
 
 const predefinedQuestions = [
@@ -32,21 +56,85 @@ const predefinedQuestions = [
   },
 ];
 
-export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ note, isOpen, onClose }) => {
+export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
+  note,
+  isOpen,
+  onClose,
+  onUpdateNote,
+}) => {
   const [customQuestion, setCustomQuestion] = useState("");
   const [aiResponse, setAiResponse] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [chatHistory, setChatHistory] = useState<ChatMessage[]>([]);
+  const [showHistory, setShowHistory] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editedContent, setEditedContent] = useState(note?.content || "");
 
-  if (!isOpen) return null;
+  useEffect(() => {
+    if (isOpen && note) {
+      loadChatHistory();
+      setEditedContent(note.content);
+      setIsEditing(false);
+    }
+  }, [isOpen, note?.id, note?.content]);
+
+  const loadChatHistory = async () => {
+    if (!note?.id) return;
+    try {
+      const history = await get(`chat-history-${note.id}`);
+      setChatHistory(history || []);
+    } catch (error) {
+      console.error("Error loading chat history:", error);
+    }
+  };
+
+  const saveChatMessage = async (question: string, response: string) => {
+    if (!note?.id) return;
+    const newMessage: ChatMessage = {
+      id: Date.now().toString(),
+      question,
+      response,
+      timestamp: Date.now(),
+    };
+    const updatedHistory = [...chatHistory, newMessage];
+    setChatHistory(updatedHistory);
+
+    try {
+      await set(`chat-history-${note.id}`, updatedHistory);
+    } catch (error) {
+      console.error("Error saving chat history:", error);
+    }
+  };
+
+  const handleSaveEdit = () => {
+    if (onUpdateNote && note && editedContent.trim() !== note.content) {
+      const updatedNote: SmartNote = {
+        ...note,
+        content: editedContent.trim(),
+      };
+      onUpdateNote(updatedNote);
+    }
+    setIsEditing(false);
+  };
+
+  const handleCancelEdit = () => {
+    setEditedContent(note?.content || "");
+    setIsEditing(false);
+  };
+
+  if (!isOpen || !note) return null;
 
   const handlePredefinedQuestion = async (question: string) => {
+    if (!note?.content) return;
     setIsLoading(true);
     setAiResponse("");
     try {
       const response = await ollamaService.askQuestion(note.content, question);
       setAiResponse(response);
+      await saveChatMessage(question, response);
     } catch (_error) {
-      setAiResponse("Error getting AI response. Please try again.");
+      const errorMsg = "Error getting AI response. Please try again.";
+      setAiResponse(errorMsg);
     } finally {
       setIsLoading(false);
     }
@@ -54,16 +142,19 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ note, isOpen, 
 
   const handleCustomQuestion = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!customQuestion.trim()) return;
+    if (!customQuestion.trim() || !note?.content) return;
 
+    const question = customQuestion;
     setIsLoading(true);
     setAiResponse("");
     try {
-      const response = await ollamaService.askQuestion(note.content, customQuestion);
+      const response = await ollamaService.askQuestion(note.content, question);
       setAiResponse(response);
+      await saveChatMessage(question, response);
       setCustomQuestion("");
     } catch (_error) {
-      setAiResponse("Error getting AI response. Please try again.");
+      const errorMsg = "Error getting AI response. Please try again.";
+      setAiResponse(errorMsg);
     } finally {
       setIsLoading(false);
     }
@@ -74,23 +165,82 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ note, isOpen, 
       <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-hidden">
         <div className="flex items-center justify-between p-6 border-b border-gray-200">
           <h2 className="text-xl font-semibold text-gray-900">Task Analysis</h2>
-          <button
-            type="button"
-            onClick={() => {
-              setAiResponse("");
-              onClose();
-            }}
-            className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-          >
-            <X className="w-5 h-5" />
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => setShowHistory(!showHistory)}
+              className={`p-2 rounded-lg transition-colors ${
+                showHistory ? "bg-blue-100 text-blue-600" : "hover:bg-gray-100"
+              }`}
+              title="Toggle chat history"
+            >
+              <History className="w-5 h-5" />
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setAiResponse("");
+                setShowHistory(false);
+                onClose();
+              }}
+              className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          </div>
         </div>
 
         <div className="p-6 overflow-y-auto max-h-[calc(90vh-140px)]">
           {/* Original Note */}
           <div className="mb-6">
-            <h3 className="font-medium text-gray-900 mb-2">{note.aiAnalysis.summary}</h3>
-            <p className="text-gray-600 text-sm mb-4">{note.content}</p>
+            <div className="flex items-center justify-between mb-2">
+              <h3 className="font-medium text-gray-900">{note.aiAnalysis.summary}</h3>
+              <button
+                type="button"
+                onClick={() => setIsEditing(!isEditing)}
+                className="p-1.5 hover:bg-gray-100 rounded-lg transition-colors"
+                title={isEditing ? "Cancel edit" : "Edit task"}
+              >
+                {isEditing ? (
+                  <XCircle className="w-4 h-4 text-gray-500" />
+                ) : (
+                  <Edit2 className="w-4 h-4 text-gray-500" />
+                )}
+              </button>
+            </div>
+
+            {isEditing ? (
+              <div className="mb-4">
+                <MDEditor
+                  value={editedContent}
+                  onChange={(value) => setEditedContent(value || "")}
+                  preview="edit"
+                  hideToolbar
+                  height={120}
+                />
+                <div className="flex gap-2 mt-2">
+                  <button
+                    type="button"
+                    onClick={handleSaveEdit}
+                    className="px-3 py-1.5 bg-blue-500 text-white text-sm rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-colors flex items-center gap-1"
+                  >
+                    <Save className="w-3 h-3" />
+                    Save
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleCancelEdit}
+                    className="px-3 py-1.5 text-gray-600 text-sm rounded-lg hover:bg-gray-100 transition-colors"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <div className="text-gray-600 text-sm mb-4 prose prose-sm max-w-none">
+                <Markdown remarkPlugins={[remarkGfm]}>{note.content}</Markdown>
+              </div>
+            )}
 
             {/* AI Analysis Details */}
             <div className="bg-gray-50 rounded-lg p-4 space-y-3">
@@ -181,6 +331,30 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ note, isOpen, 
               </button>
             </form>
           </div>
+
+          {/* Chat History */}
+          {showHistory && chatHistory.length > 0 && (
+            <div className="mb-6">
+              <h4 className="font-medium text-gray-900 mb-3">Chat History</h4>
+              <div className="space-y-4 max-h-60 overflow-y-auto">
+                {chatHistory.map((message) => (
+                  <div key={message.id} className="border border-gray-200 rounded-lg p-3">
+                    <div className="mb-2">
+                      <p className="text-sm font-medium text-gray-700">Q: {message.question}</p>
+                    </div>
+                    <div className="bg-blue-50 rounded p-2">
+                      <div className="text-sm text-blue-800 prose prose-sm max-w-none">
+                        <Markdown remarkPlugins={[remarkGfm]}>{message.response}</Markdown>
+                      </div>
+                    </div>
+                    <div className="text-xs text-gray-500 mt-1">
+                      {new Date(message.timestamp).toLocaleString()}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
 
           {/* AI Response */}
           {(isLoading || aiResponse) && (
