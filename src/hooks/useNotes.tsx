@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import type { SmartNote } from "../types";
 import { storageService } from "../services/storage";
-import { ollamaService } from "../services/ollama";
+import { aiService } from "../services/ai";
 
 export const useNotes = () => {
   const [notes, setNotes] = useState<SmartNote[]>([]);
@@ -29,7 +29,7 @@ export const useNotes = () => {
 
     setIsAnalyzing(true);
     try {
-      const aiAnalysis = await ollamaService.analyzeNote(content);
+      const aiAnalysis = await aiService.analyzeNote(content);
 
       const newNote: SmartNote = {
         id: `note-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,

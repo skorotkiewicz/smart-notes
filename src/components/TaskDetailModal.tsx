@@ -16,8 +16,7 @@ import MDEditor from "@uiw/react-md-editor";
 import Markdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import type { SmartNote } from "../types";
-import { ollamaService } from "../services/ollama";
-
+import { aiService } from "../services/ai";
 
 interface TaskDetailModalProps {
   note: SmartNote;
@@ -129,7 +128,7 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
     setIsLoading(true);
     setAiResponse("");
     try {
-      const response = await ollamaService.askQuestion(note.content, question);
+      const response = await aiService.askQuestion(note.content, question);
       setAiResponse(response);
       await saveChatMessage(question, response);
     } catch (_error) {
@@ -148,7 +147,7 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
     setIsLoading(true);
     setAiResponse("");
     try {
-      const response = await ollamaService.askQuestion(note.content, question);
+      const response = await aiService.askQuestion(note.content, question);
       setAiResponse(response);
       await saveChatMessage(question, response);
       setCustomQuestion("");

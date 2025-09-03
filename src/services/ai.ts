@@ -1,0 +1,73 @@
+import type { OllamaResponse } from "../types";
+import { configService } from "./config";
+import { ollamaService } from "./ollama";
+import { geminiService } from "./gemini";
+import { ANALYSIS_PROMPT } from "../utils/prompts";
+
+export const aiService = {
+  async analyzeNote(content: string): Promise<OllamaResponse> {
+    const aiConfig = configService.getAIConfig();
+
+    if (aiConfig.provider === "gemini") {
+      try {
+        const response = await geminiService.generateWithGemini(
+          ANALYSIS_PROMPT(content),
+          aiConfig.gemini,
+        );
+        const analysis = JSON.parse(response);
+
+        return {
+          type: analysis.type || "note",
+          priority: analysis.priority || "medium",
+          summary: analysis.summary || content.substring(0, 50),
+          actionItems: analysis.actionItems || [],
+          dueContext: analysis.dueContext,
+        };
+      } catch (error) {
+        console.error("Error with Gemini analysis:", error);
+        // Fallback analysis
+        return {
+          type: "note",
+          priority: "medium",
+          summary: content.substring(0, 50),
+          actionItems: [],
+          dueContext: undefined,
+        };
+      }
+    }
+
+    return await ollamaService.analyzeNote(content);
+  },
+
+  async askQuestion(noteContent: string, question: string): Promise<string> {
+    const aiConfig = configService.getAIConfig();
+
+    if (aiConfig.provider === "gemini") {
+      const prompt = `Based on this note: "${noteContent}"\n\nAnswer this question: ${question}\n\nProvide a helpful, concise response.`;
+      return await geminiService.generateWithGemini(prompt, aiConfig.gemini);
+    }
+
+    return await ollamaService.askQuestion(noteContent, question);
+  },
+
+  async testConnection(): Promise<boolean> {
+    const aiConfig = configService.getAIConfig();
+
+    if (aiConfig.provider === "gemini") {
+      return await geminiService.testConnection(aiConfig.gemini);
+    }
+
+    return await ollamaService.testConnection();
+  },
+
+  async getAvailableModels(): Promise<string[]> {
+    const aiConfig = configService.getAIConfig();
+
+    if (aiConfig.provider === "gemini") {
+      // Return predefined Gemini models
+      return ["gemini-1.5-flash", "gemini-2.5-flash"];
+    }
+
+    return await ollamaService.getAvailableModels();
+  },
+};

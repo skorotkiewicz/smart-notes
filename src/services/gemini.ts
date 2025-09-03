@@ -1,10 +1,7 @@
 import type { GeminiConfig, GeminiResponse } from "../types";
 
 export class GeminiService {
-  async generateWithGemini(
-    prompt: string,
-    { apikey, model }: GeminiConfig,
-  ): Promise<string> {
+  async generateWithGemini(prompt: string, { apikey, model }: GeminiConfig): Promise<string> {
     const res = await fetch(
       `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apikey}`,
       {
@@ -20,13 +17,9 @@ export class GeminiService {
   }
 
   async testConnection(config: GeminiConfig): Promise<boolean> {
-    try {
-      const response = await this.generateWithGemini("Test", config);
-      return response.length > 0;
-    } catch (error) {
-      console.error("Gemini connection test failed:", error);
-      return false;
-    }
+    // For Gemini, just check if API key is provided
+    // We don't want to spam the API with test requests
+    return config.apikey.length > 0;
   }
 }
 

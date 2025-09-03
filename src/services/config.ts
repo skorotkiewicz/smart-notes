@@ -11,7 +11,7 @@ const DEFAULT_OLLAMA_CONFIG: OllamaConfig = {
 const DEFAULT_AI_CONFIG: AIConfig = {
   provider: "ollama",
   ollama: DEFAULT_OLLAMA_CONFIG,
-  gemini: { apikey: "", model: "gemini-1.5-flash" }
+  gemini: { apikey: "", model: "gemini-1.5-flash" },
 };
 
 export const configService = {
@@ -44,7 +44,7 @@ export const configService = {
           ...DEFAULT_AI_CONFIG,
           ...parsed,
           ollama: { ...DEFAULT_AI_CONFIG.ollama, ...parsed.ollama },
-          gemini: { ...DEFAULT_AI_CONFIG.gemini, ...parsed.gemini }
+          gemini: { ...DEFAULT_AI_CONFIG.gemini, ...parsed.gemini },
         };
       }
     } catch (error) {

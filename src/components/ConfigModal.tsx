@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
 import { X, Settings, Wifi, RefreshCw } from "lucide-react";
-import type { AIConfig, OllamaConfig, GeminiConfig } from "../types";
+import type { AIConfig } from "../types";
 import { configService } from "../services/config";
-import { ollamaService } from "../services/ollama";
+import { aiService } from "../services/ai";
 
 interface ConfigModalProps {
   isOpen: boolean;
@@ -26,7 +26,7 @@ export const ConfigModal: React.FC<ConfigModalProps> = ({ isOpen, onClose, onCon
   const loadModels = async () => {
     setIsLoadingModels(true);
     try {
-      const models = await ollamaService.getAvailableModels();
+      const models = await aiService.getAvailableModels();
       setAvailableModels(models);
     } catch (error) {
       console.error("Error loading models:", error);
@@ -44,7 +44,7 @@ export const ConfigModal: React.FC<ConfigModalProps> = ({ isOpen, onClose, onCon
       configService.saveConfig(aiConfig.ollama);
 
       try {
-        const isConnected = await ollamaService.testConnection();
+        const isConnected = await aiService.testConnection();
         setTestStatus(isConnected ? "success" : "error");
 
         if (isConnected) {
@@ -79,31 +79,31 @@ export const ConfigModal: React.FC<ConfigModalProps> = ({ isOpen, onClose, onCon
   };
 
   const handleUrlChange = (url: string) => {
-    setAiConfig((prev) => ({ 
-      ...prev, 
-      ollama: { ...prev.ollama, url }
+    setAiConfig((prev) => ({
+      ...prev,
+      ollama: { ...prev.ollama, url },
     }));
     setTestStatus("idle");
   };
 
   const handleModelChange = (model: string) => {
     if (aiConfig.provider === "ollama") {
-      setAiConfig((prev) => ({ 
-        ...prev, 
-        ollama: { ...prev.ollama, model }
+      setAiConfig((prev) => ({
+        ...prev,
+        ollama: { ...prev.ollama, model },
       }));
     } else {
-      setAiConfig((prev) => ({ 
-        ...prev, 
-        gemini: { ...prev.gemini, model }
+      setAiConfig((prev) => ({
+        ...prev,
+        gemini: { ...prev.gemini, model },
       }));
     }
   };
 
   const handleApiKeyChange = (apikey: string) => {
-    setAiConfig((prev) => ({ 
-      ...prev, 
-      gemini: { ...prev.gemini, apikey }
+    setAiConfig((prev) => ({
+      ...prev,
+      gemini: { ...prev.gemini, apikey },
     }));
     setTestStatus("idle");
   };
@@ -161,7 +161,9 @@ export const ConfigModal: React.FC<ConfigModalProps> = ({ isOpen, onClose, onCon
             <>
               {/* Ollama URL Configuration */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Ollama API URL</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Ollama API URL
+                </label>
                 <div className="flex gap-2">
                   <input
                     type="text"
@@ -258,11 +260,14 @@ export const ConfigModal: React.FC<ConfigModalProps> = ({ isOpen, onClose, onCon
             {aiConfig.provider === "ollama" && isLoadingModels && (
               <p className="text-sm text-gray-500 mt-1">Loading available models...</p>
             )}
-            {aiConfig.provider === "ollama" && availableModels.length === 0 && !isLoadingModels && testStatus === "success" && (
-              <p className="text-sm text-amber-600 mt-1">
-                No models found. Make sure Ollama has models installed.
-              </p>
-            )}
+            {aiConfig.provider === "ollama" &&
+              availableModels.length === 0 &&
+              !isLoadingModels &&
+              testStatus === "success" && (
+                <p className="text-sm text-amber-600 mt-1">
+                  No models found. Make sure Ollama has models installed.
+                </p>
+              )}
           </div>
 
           {/* Save Button */}

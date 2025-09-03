@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { WifiOff, Wifi } from "lucide-react";
-import { ollamaService } from "../services/ollama";
+import { aiService } from "../services/ai";
+import { configService } from "../services/config";
 
 interface ConnectionStatusProps {
   onOpenConfig: () => void;
@@ -8,15 +9,24 @@ interface ConnectionStatusProps {
 
 export const ConnectionStatus: React.FC<ConnectionStatusProps> = ({ onOpenConfig }) => {
   const [isConnected, setIsConnected] = useState<boolean | null>(null);
+  const [currentProvider, setCurrentProvider] = useState<string>("");
 
   useEffect(() => {
     checkConnection();
-    const interval = setInterval(checkConnection, 30000); // Check every 30s
-    return () => clearInterval(interval);
+
+    // Only set up interval for Ollama, not for Gemini
+    const aiConfig = configService.getAIConfig();
+    if (aiConfig.provider === "ollama") {
+      const interval = setInterval(checkConnection, 30000); // Check every 30s
+      return () => clearInterval(interval);
+    }
   }, []);
 
   const checkConnection = async () => {
-    const connected = await ollamaService.testConnection();
+    const aiConfig = configService.getAIConfig();
+    setCurrentProvider(aiConfig.provider === "ollama" ? "Ollama" : "Gemini");
+
+    const connected = await aiService.testConnection();
     setIsConnected(connected);
   };
 
@@ -35,12 +45,12 @@ export const ConnectionStatus: React.FC<ConnectionStatusProps> = ({ onOpenConfig
       {isConnected ? (
         <>
           <Wifi className="w-4 h-4" />
-          Ollama connected
+          {currentProvider} connected
         </>
       ) : (
         <>
           <WifiOff className="w-4 h-4" />
-          Ollama offline
+          {currentProvider} offline
         </>
       )}
     </button>
