@@ -359,7 +359,7 @@ export const ConfigModal: React.FC<ConfigModalProps> = ({ isOpen, onClose, onCon
             current data.
           </p>
 
-          <p className="py-2 text-sm text-gray-300 hover:text-gray-400">
+          <p className="py-2 text-sm text-gray-400 hover:text-gray-500">
             <a
               href="https://github.com/skorotkiewicz/smart-notes"
               target="_blank"
