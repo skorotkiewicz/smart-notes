@@ -91,7 +91,7 @@ function App() {
         onClose={() => setIsConfigOpen(false)}
         onConfigUpdate={handleConfigUpdate}
       />
-      version: {import.meta.env.VITE_APP_VERSION}
+      build: {import.meta.env.VITE_APP_VERSION}
     </div>
   );
 }
