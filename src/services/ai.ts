@@ -44,8 +44,10 @@ export const aiService = {
     const aiConfig = configService.getAIConfig();
 
     if (aiConfig.provider === "gemini") {
-      const prompt = `Based on this note: "${noteContent}"\n\nAnswer this question: ${question}\n\nProvide a helpful, concise response.`;
-      return await geminiService.generateWithGemini(prompt, aiConfig.gemini);
+      const prompt = `Based on this note: "${noteContent}"\n\nAnswer this question: ${question}\n\nProvide a helpful, concise response.\n\nRespond in JSON format: {"answer": "<your answer>"}`;
+      const response = await geminiService.generateWithGemini(prompt, aiConfig.gemini);
+      const parsed = extractAndParseJSON(response);
+      return parsed.answer || response;
     }
 
     return await ollamaService.askQuestion(noteContent, question);

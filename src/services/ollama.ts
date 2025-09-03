@@ -84,8 +84,9 @@ export const ollamaService = {
         },
         body: JSON.stringify({
           model: config.model,
-          prompt: `Based on this note: "${noteContent}"\n\nAnswer this question: ${question}\n\nProvide a helpful, concise response.`,
+          prompt: `Based on this note: "${noteContent}"\n\nAnswer this question: ${question}\n\nProvide a helpful, concise response.\n\nRespond in JSON format: {"answer": "<your answer>"}`,
           stream: false,
+          format: "json",
         }),
       });
 
@@ -94,7 +95,8 @@ export const ollamaService = {
       }
 
       const data = await response.json();
-      return data.response || "No response available";
+      const parsed = extractAndParseJSON(data.response);
+      return parsed.answer || data.response || "No response available";
     } catch (error) {
       console.error("Error asking question:", error);
       return "Sorry, I could not process your question at this time.";
