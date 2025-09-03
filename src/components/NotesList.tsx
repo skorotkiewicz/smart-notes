@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Target, Clock, Lightbulb, BookOpen, AlertCircle } from "lucide-react";
+import { Target, Clock, Lightbulb, BookOpen, AlertCircle, Search } from "lucide-react";
 import { NoteCard } from "./NoteCard";
 import type { SmartNote } from "../types";
 
@@ -19,6 +19,7 @@ export const NotesList: React.FC<NotesListProps> = ({
   onOpenDetails,
 }) => {
   const [filter, setFilter] = useState<FilterType>("all");
+  const [searchQuery, setSearchQuery] = useState("");
 
   const getFilteredNotes = () => {
     switch (filter) {
@@ -45,7 +46,16 @@ export const NotesList: React.FC<NotesListProps> = ({
     }
   };
 
-  const filteredNotes = getFilteredNotes();
+  const filteredNotes = getFilteredNotes().filter((note) => {
+    if (!searchQuery.trim()) return true;
+    const query = searchQuery.toLowerCase();
+    return (
+      note.content.toLowerCase().includes(query) ||
+      note.aiAnalysis.summary.toLowerCase().includes(query) ||
+      note.aiAnalysis.actionItems?.some(item => item.toLowerCase().includes(query)) ||
+      false
+    );
+  });
 
   const filters = [
     {
@@ -102,6 +112,19 @@ export const NotesList: React.FC<NotesListProps> = ({
 
   return (
     <div className="w-full max-w-4xl mx-auto">
+      <div className="mb-6">
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+          <input
+            type="text"
+            placeholder="Search tasks by content, summary, or action items..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full pl-10 pr-4 py-3 bg-white border border-gray-200 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+          />
+        </div>
+      </div>
+      
       <div className="flex flex-wrap gap-2 mb-6 p-1 bg-gray-100 rounded-xl">
         {filters.map(({ key, label, icon: Icon, count }) => (
           <button
@@ -132,7 +155,21 @@ export const NotesList: React.FC<NotesListProps> = ({
       <div className="space-y-4">
         {filteredNotes.length === 0 ? (
           <div className="text-center py-8">
-            <p className="text-gray-400">No notes in this category</p>
+            <p className="text-gray-400">
+              {searchQuery.trim() 
+                ? `No tasks found matching "${searchQuery}"` 
+                : "No notes in this category"
+              }
+            </p>
+            {searchQuery.trim() && (
+              <button
+                type="button"
+                onClick={() => setSearchQuery("")}
+                className="mt-2 text-blue-600 hover:text-blue-800 text-sm font-medium"
+              >
+                Clear search
+              </button>
+            )}
           </div>
         ) : (
           filteredNotes.map((note) => (

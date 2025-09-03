@@ -9,8 +9,15 @@ import { useNotes } from "./hooks/useNotes";
 import type { SmartNote } from "./types";
 
 function App() {
-  const { notes, isAnalyzing, addNote, updateNote, toggleComplete, deleteNote, getPrioritizedNotes } =
-    useNotes();
+  const {
+    notes,
+    isAnalyzing,
+    addNote,
+    updateNote,
+    toggleComplete,
+    deleteNote,
+    getPrioritizedNotes,
+  } = useNotes();
 
   const [selectedNote, setSelectedNote] = useState<SmartNote | null>(null);
   const [isConfigOpen, setIsConfigOpen] = useState(false);
@@ -76,6 +83,7 @@ function App() {
       )}
 
       <TaskDetailModal
+        // biome-ignore lint/style/noNonNullAssertion: <!>
         note={selectedNote!}
         isOpen={selectedNote !== null}
         onClose={handleCloseDetails}
