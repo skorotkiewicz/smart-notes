@@ -123,16 +123,18 @@ export const NoteCard: React.FC<NoteCardProps> = ({
 
           <div className="flex items-center justify-between">
             <span className="text-xs text-gray-400">{timeAgo}</span>
-            <button
-              type="button"
-              onClick={(e) => {
-                e.stopPropagation();
-                onDelete(note.id);
-              }}
-              className="text-gray-400 hover:text-red-500 transition-colors p-1"
-            >
-              <Trash2 className="w-4 h-4" />
-            </button>
+            {note.completed && (
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onDelete(note.id);
+                }}
+                className="text-gray-400 hover:text-red-500 transition-colors p-1"
+              >
+                <Trash2 className="w-4 h-4" />
+              </button>
+            )}
           </div>
         </div>
       </div>
