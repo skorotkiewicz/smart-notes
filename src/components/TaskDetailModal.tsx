@@ -10,6 +10,7 @@ import {
   Edit2,
   Save,
   XCircle,
+  Trash2,
 } from "lucide-react";
 import { get, set } from "idb-keyval";
 import MDEditor from "@uiw/react-md-editor";
@@ -102,6 +103,18 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
       await set(`chat-history-${note.id}`, updatedHistory);
     } catch (error) {
       console.error("Error saving chat history:", error);
+    }
+  };
+
+  const deleteChatMessage = async (messageId: string) => {
+    if (!note?.id) return;
+    const updatedHistory = chatHistory.filter(msg => msg.id !== messageId);
+    setChatHistory(updatedHistory);
+
+    try {
+      await set(`chat-history-${note.id}`, updatedHistory);
+    } catch (error) {
+      console.error("Error deleting chat message:", error);
     }
   };
 
@@ -339,9 +352,17 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
               <h4 className="font-medium text-gray-900 mb-3">Chat History</h4>
               <div className="space-y-4 max-h-60 overflow-y-auto">
                 {chatHistory.map((message) => (
-                  <div key={message.id} className="border border-gray-200 rounded-lg p-3">
-                    <div className="mb-2">
-                      <p className="text-sm font-medium text-gray-700">Q: {message.question}</p>
+                  <div key={message.id} className="border border-gray-200 rounded-lg p-3 group">
+                    <div className="flex items-start justify-between mb-2">
+                      <p className="text-sm font-medium text-gray-700 flex-1">Q: {message.question}</p>
+                      <button
+                        type="button"
+                        onClick={() => deleteChatMessage(message.id)}
+                        className="ml-2 p-1 opacity-0 group-hover:opacity-100 hover:bg-red-100 rounded transition-all duration-200"
+                        title="Delete message"
+                      >
+                        <Trash2 className="w-3 h-3 text-red-500" />
+                      </button>
                     </div>
                     <div className="bg-blue-50 rounded p-2">
                       <div className="text-sm text-blue-800 prose prose-sm max-w-none">
