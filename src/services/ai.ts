@@ -2,7 +2,7 @@ import type { OllamaResponse } from "../types";
 import { configService } from "./config";
 import { ollamaService } from "./ollama";
 import { geminiService } from "./gemini";
-import { ANALYSIS_PROMPT } from "../utils/prompts";
+import { ANALYSIS_PROMPT, ASK_PROMPT } from "../utils/prompts";
 import { extractAndParseJSON } from "../utils/jsonParser";
 
 export const aiService = {
@@ -44,8 +44,10 @@ export const aiService = {
     const aiConfig = configService.getAIConfig();
 
     if (aiConfig.provider === "gemini") {
-      const prompt = `Based on this note: "${noteContent}"\n\nAnswer this question: ${question}\n\nProvide a helpful, concise response.\n\nRespond in JSON format: {"answer": "<your answer>"}`;
-      const response = await geminiService.generateWithGemini(prompt, aiConfig.gemini);
+      const response = await geminiService.generateWithGemini(
+        ASK_PROMPT(noteContent, question),
+        aiConfig.gemini,
+      );
       const parsed = extractAndParseJSON(response);
       return parsed.answer || response;
     }

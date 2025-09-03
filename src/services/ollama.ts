@@ -1,6 +1,6 @@
 import type { OllamaResponse } from "../types";
 import { configService } from "./config";
-import { ANALYSIS_PROMPT } from "../utils/prompts";
+import { ANALYSIS_PROMPT, ASK_PROMPT } from "../utils/prompts";
 import { extractAndParseJSON } from "../utils/jsonParser";
 
 export const ollamaService = {
@@ -84,7 +84,7 @@ export const ollamaService = {
         },
         body: JSON.stringify({
           model: config.model,
-          prompt: `Based on this note: "${noteContent}"\n\nAnswer this question: ${question}\n\nProvide a helpful, concise response.\n\nRespond in JSON format: {"answer": "<your answer>"}`,
+          prompt: ASK_PROMPT(noteContent, question),
           stream: false,
           format: "json",
         }),

@@ -23,3 +23,7 @@ Priority:
 
 User note: "${content}"`;
 };
+
+export const ASK_PROMPT = (noteContent: string, question: string) => {
+  return `Based on this note: "${noteContent}"\n\nAnswer this question: ${question}\n\nProvide a helpful, concise response.\n\nRespond only with string in this JSON format: {"answer": "here your answer"}`;
+};
