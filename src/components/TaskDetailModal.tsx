@@ -18,6 +18,7 @@ import Markdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import type { SmartNote } from "../types";
 import { aiService } from "../services/ai";
+import { configService } from "../services/config";
 
 interface TaskDetailModalProps {
   note: SmartNote;
@@ -31,6 +32,7 @@ interface ChatMessage {
   question: string;
   response: string;
   timestamp: number;
+  model: string;
 }
 
 const predefinedQuestions = [
@@ -90,11 +92,13 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
 
   const saveChatMessage = async (question: string, response: string) => {
     if (!note?.id) return;
+    const aiConfig = configService.getAIConfig();
     const newMessage: ChatMessage = {
       id: Date.now().toString(),
       question,
       response,
       timestamp: Date.now(),
+      model: aiConfig.provider === "gemini" ? aiConfig.gemini.model : aiConfig.ollama.model,
     };
     const updatedHistory = [...chatHistory, newMessage];
     setChatHistory(updatedHistory);
@@ -371,8 +375,10 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
                         <Markdown remarkPlugins={[remarkGfm]}>{message.response}</Markdown>
                       </div>
                     </div>
-                    <div className="text-xs text-gray-500 mt-1">
-                      {new Date(message.timestamp).toLocaleString()}
+                    <div className="text-xs text-gray-500 mt-1 flex items-center justify-between">
+                      <span>
+                        {new Date(message.timestamp).toLocaleString()} • {message.model}
+                      </span>
                     </div>
                   </div>
                 ))}

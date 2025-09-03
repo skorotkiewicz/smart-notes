@@ -122,7 +122,9 @@ export const NoteCard: React.FC<NoteCardProps> = ({
           )}
 
           <div className="flex items-center justify-between">
-            <span className="text-xs text-gray-400">{timeAgo}</span>
+            <span className="text-xs text-gray-500 flex items-center gap-2">
+              {timeAgo} • {note.aiAnalysis.model}
+            </span>
             {note.completed && (
               <button
                 type="button"

@@ -23,6 +23,7 @@ export const aiService = {
           summary: analysis.summary || content.substring(0, 50),
           actionItems: analysis.actionItems || [],
           dueContext: analysis.dueContext,
+          model: aiConfig.gemini.model,
         };
       } catch (error) {
         console.error("Error with Gemini analysis:", error);
@@ -33,6 +34,7 @@ export const aiService = {
           summary: content.substring(0, 50),
           actionItems: [],
           dueContext: undefined,
+          model: "unknown",
         };
       }
     }
