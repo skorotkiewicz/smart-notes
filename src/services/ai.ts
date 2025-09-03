@@ -3,6 +3,7 @@ import { configService } from "./config";
 import { ollamaService } from "./ollama";
 import { geminiService } from "./gemini";
 import { ANALYSIS_PROMPT } from "../utils/prompts";
+import { extractAndParseJSON } from "../utils/jsonParser";
 
 export const aiService = {
   async analyzeNote(content: string): Promise<OllamaResponse> {
@@ -14,7 +15,7 @@ export const aiService = {
           ANALYSIS_PROMPT(content),
           aiConfig.gemini,
         );
-        const analysis = JSON.parse(response);
+        const analysis = extractAndParseJSON(response);
 
         return {
           type: analysis.type || "note",
