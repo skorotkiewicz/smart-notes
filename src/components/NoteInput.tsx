@@ -1,5 +1,6 @@
-import { useState, useRef } from "react";
+import { useState } from "react";
 import { Send, Brain } from "lucide-react";
+import MDEditor from "@uiw/react-md-editor";
 
 interface NoteInputProps {
   onAddNote: (content: string) => Promise<void>;
@@ -8,7 +9,6 @@ interface NoteInputProps {
 
 export const NoteInput: React.FC<NoteInputProps> = ({ onAddNote, isAnalyzing }) => {
   const [content, setContent] = useState("");
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -16,7 +16,6 @@ export const NoteInput: React.FC<NoteInputProps> = ({ onAddNote, isAnalyzing }) 
 
     await onAddNote(content);
     setContent("");
-    textareaRef.current?.focus();
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -30,7 +29,7 @@ export const NoteInput: React.FC<NoteInputProps> = ({ onAddNote, isAnalyzing }) 
     <div className="w-full max-w-4xl mx-auto mb-8">
       <form onSubmit={handleSubmit} className="relative">
         <div className="relative">
-          <textarea
+          {/* <textarea
             ref={textareaRef}
             value={content}
             onChange={(e) => setContent(e.target.value)}
@@ -39,7 +38,21 @@ export const NoteInput: React.FC<NoteInputProps> = ({ onAddNote, isAnalyzing }) 
             className="w-full p-6 pr-16 text-lg border-0 rounded-2xl shadow-lg bg-white/90 backdrop-blur-sm resize-none focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:shadow-xl transition-all duration-300 min-h-[120px] placeholder-gray-400"
             disabled={isAnalyzing}
             autoFocus
-          />
+          /> */}
+
+          <div data-color-mode="light">
+            <MDEditor
+              value={content}
+              onChange={(value) => setContent(value || "")}
+              onKeyDown={handleKeyDown}
+              textareaProps={{
+                placeholder: "Write your thought, idea, task... AI will help you organize it ✨",
+                disabled: isAnalyzing,
+              }}
+              autoFocus
+              preview="edit"
+            />
+          </div>
 
           <button
             type="submit"

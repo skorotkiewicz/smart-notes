@@ -108,7 +108,7 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
 
   const deleteChatMessage = async (messageId: string) => {
     if (!note?.id) return;
-    const updatedHistory = chatHistory.filter(msg => msg.id !== messageId);
+    const updatedHistory = chatHistory.filter((msg) => msg.id !== messageId);
     setChatHistory(updatedHistory);
 
     try {
@@ -228,8 +228,8 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
                     value={editedContent}
                     onChange={(value) => setEditedContent(value || "")}
                     preview="edit"
-                    hideToolbar
                     height={120}
+                    // hideToolbar
                   />
                 </div>
                 <div className="flex gap-2 mt-2">
@@ -354,7 +354,9 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
                 {chatHistory.map((message) => (
                   <div key={message.id} className="border border-gray-200 rounded-lg p-3 group">
                     <div className="flex items-start justify-between mb-2">
-                      <p className="text-sm font-medium text-gray-700 flex-1">Q: {message.question}</p>
+                      <p className="text-sm font-medium text-gray-700 flex-1">
+                        Q: {message.question}
+                      </p>
                       <button
                         type="button"
                         onClick={() => deleteChatMessage(message.id)}
