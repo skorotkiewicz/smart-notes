@@ -210,13 +210,15 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
 
             {isEditing ? (
               <div className="mb-4">
-                <MDEditor
-                  value={editedContent}
-                  onChange={(value) => setEditedContent(value || "")}
-                  preview="edit"
-                  hideToolbar
-                  height={120}
-                />
+                <div data-color-mode="light">
+                  <MDEditor
+                    value={editedContent}
+                    onChange={(value) => setEditedContent(value || "")}
+                    preview="edit"
+                    hideToolbar
+                    height={120}
+                  />
+                </div>
                 <div className="flex gap-2 mt-2">
                   <button
                     type="button"
@@ -376,7 +378,7 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
                   <span className="ml-2">Analyzing...</span>
                 </div>
               ) : (
-                <p className="text-blue-800 whitespace-pre-wrap">{aiResponse}</p>
+                <Markdown remarkPlugins={[remarkGfm]}>{aiResponse}</Markdown>
               )}
             </div>
           )}
