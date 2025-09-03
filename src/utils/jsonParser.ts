@@ -4,8 +4,8 @@ export function extractAndParseJSON(response: string): any {
     return JSON.parse(response.trim());
   } catch {
     // Remove markdown code blocks if present
-    let cleanResponse = response.replace(/```(?:json)?\s*\n?/g, '').replace(/```/g, '');
-    
+    const cleanResponse = response.replace(/```(?:json)?\s*\n?/g, "").replace(/```/g, "");
+
     try {
       return JSON.parse(cleanResponse.trim());
     } catch {
@@ -16,9 +16,9 @@ export function extractAndParseJSON(response: string): any {
         // JSON object that might span multiple lines
         /\{[^{}]*(?:\{[^{}]*\}[^{}]*)*\}/,
         // JSON object with nested structures
-        /\{(?:[^{}]|\{[^{}]*\})*\}/
+        /\{(?:[^{}]|\{[^{}]*\})*\}/,
       ];
-      
+
       for (const pattern of patterns) {
         const match = cleanResponse.match(pattern);
         if (match) {
@@ -29,11 +29,11 @@ export function extractAndParseJSON(response: string): any {
           }
         }
       }
-      
+
       // Try to find all potential JSON objects and test each one
       const multipleJsonRegex = /\{[^{}]*(?:\{[^{}]*\}[^{}]*)*\}/g;
       const matches = cleanResponse.match(multipleJsonRegex);
-      
+
       if (matches) {
         // Try each match until we find a valid JSON
         for (const jsonCandidate of matches) {
@@ -44,9 +44,9 @@ export function extractAndParseJSON(response: string): any {
           }
         }
       }
-      
+
       // If all else fails, throw an error
-      throw new Error('No valid JSON found in response');
+      throw new Error("No valid JSON found in response");
     }
   }
 }
