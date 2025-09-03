@@ -31,6 +31,7 @@ A modern, AI-powered note-taking application that automatically analyzes and org
 - **Detailed Task View**: Expandable modals with full note analysis
 - **Connection Status**: Live monitoring of AI service connectivity
 - **Search Functionality**: Quick task filtering and search
+- **Data Backup/Export**: Full export/import functionality for notes and settings
 
 ## Technology Stack
 
@@ -108,6 +109,7 @@ src/
 ├── services/           # External service integrations
 │   ├── ai.ts           # AI service abstraction
 │   ├── config.ts       # Configuration management
+│   ├── exportImport.ts # Data export/import functionality
 │   ├── gemini.ts       # Google Gemini integration
 │   ├── ollama.ts       # Ollama integration
 │   └── storage.ts      # Local storage utilities
@@ -149,4 +151,20 @@ MIT
 
 ---
 
-Built with ❤️ using React and TypeScript
+## Data Management
+
+### Backup and Export
+1. Click the settings icon (⚙️) in the connection status bar
+2. Navigate to the "Data Management" section
+3. Click "Export Data" to download a JSON file containing:
+   - All your notes and their AI analyses
+   - Current configuration settings
+4. The file will be named `smart-notes-backup-YYYY-MM-DD.json`
+
+### Restore from Backup
+1. Open the settings modal and go to "Data Management"
+2. Click "Import Data" and select your backup file
+3. Confirm to replace your current data
+4. The page will reload automatically to apply changes
+
+**Note**: Import will completely replace all existing notes and settings with the backup data.
