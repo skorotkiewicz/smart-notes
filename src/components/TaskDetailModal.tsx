@@ -1,0 +1,214 @@
+import { useState } from "react";
+import { X, Brain, List, Target, Package, MessageCircle } from "lucide-react";
+import type { SmartNote } from "../types";
+import { ollamaService } from "../services/ollama";
+
+interface TaskDetailModalProps {
+  note: SmartNote;
+  isOpen: boolean;
+  onClose: () => void;
+}
+
+const predefinedQuestions = [
+  {
+    label: "Break Down Steps",
+    icon: List,
+    question: "Break this down into specific, actionable steps.",
+  },
+  {
+    label: "Get Context",
+    icon: Brain,
+    question: "Provide more context and background information about this.",
+  },
+  {
+    label: "Priority Analysis",
+    icon: Target,
+    question: "Analyze why this is important and how urgent it really is.",
+  },
+  {
+    label: "Required Resources",
+    icon: Package,
+    question: "What resources, tools, or information do I need to complete this?",
+  },
+];
+
+export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ note, isOpen, onClose }) => {
+  const [customQuestion, setCustomQuestion] = useState("");
+  const [aiResponse, setAiResponse] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+
+  if (!isOpen) return null;
+
+  const handlePredefinedQuestion = async (question: string) => {
+    setIsLoading(true);
+    setAiResponse("");
+    try {
+      const response = await ollamaService.askQuestion(note.content, question);
+      setAiResponse(response);
+    } catch (_error) {
+      setAiResponse("Error getting AI response. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleCustomQuestion = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!customQuestion.trim()) return;
+
+    setIsLoading(true);
+    setAiResponse("");
+    try {
+      const response = await ollamaService.askQuestion(note.content, customQuestion);
+      setAiResponse(response);
+      setCustomQuestion("");
+    } catch (_error) {
+      setAiResponse("Error getting AI response. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+      <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-hidden">
+        <div className="flex items-center justify-between p-6 border-b border-gray-200">
+          <h2 className="text-xl font-semibold text-gray-900">Task Analysis</h2>
+          <button
+            type="button"
+            onClick={() => {
+              setAiResponse("");
+              onClose();
+            }}
+            className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+          >
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+
+        <div className="p-6 overflow-y-auto max-h-[calc(90vh-140px)]">
+          {/* Original Note */}
+          <div className="mb-6">
+            <h3 className="font-medium text-gray-900 mb-2">{note.aiAnalysis.summary}</h3>
+            <p className="text-gray-600 text-sm mb-4">{note.content}</p>
+
+            {/* AI Analysis Details */}
+            <div className="bg-gray-50 rounded-lg p-4 space-y-3">
+              <div className="flex items-center gap-4">
+                <div className="flex items-center gap-2">
+                  <span className="text-sm font-medium text-gray-700">Type:</span>
+                  <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-medium">
+                    {note.aiAnalysis.type}
+                  </span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-sm font-medium text-gray-700">Priority:</span>
+                  <span
+                    className={`px-2 py-1 rounded-full text-xs font-medium ${
+                      note.aiAnalysis.priority === "high"
+                        ? "bg-red-100 text-red-700"
+                        : note.aiAnalysis.priority === "medium"
+                          ? "bg-amber-100 text-amber-700"
+                          : "bg-green-100 text-green-700"
+                    }`}
+                  >
+                    {note.aiAnalysis.priority}
+                  </span>
+                </div>
+              </div>
+
+              {note.aiAnalysis.actionItems && note.aiAnalysis.actionItems.length > 0 && (
+                <div>
+                  <span className="text-sm font-medium text-gray-700 block mb-2">
+                    Action Items:
+                  </span>
+                  <ul className="space-y-1">
+                    {note.aiAnalysis.actionItems.map((item, index) => (
+                      <li key={index} className="flex items-center gap-2 text-sm text-gray-600">
+                        <div className="w-1.5 h-1.5 bg-blue-400 rounded-full"></div>
+                        {item}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
+              {note.aiAnalysis.dueContext && (
+                <div>
+                  <span className="text-sm font-medium text-gray-700">Time Context:</span>
+                  <span className="text-sm text-purple-600 ml-2">{note.aiAnalysis.dueContext}</span>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Predefined Questions */}
+          <div className="mb-6">
+            <h4 className="font-medium text-gray-900 mb-3">Ask AI for more insights:</h4>
+            <div className="grid grid-cols-2 gap-3">
+              {predefinedQuestions.map(({ label, icon: Icon, question }) => (
+                <button
+                  type="button"
+                  key={label}
+                  onClick={() => handlePredefinedQuestion(question)}
+                  disabled={isLoading}
+                  className="flex items-center gap-2 p-3 border border-gray-200 rounded-lg hover:bg-gray-50 hover:border-blue-300 transition-all duration-200 text-left disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <Icon className="w-4 h-4 text-blue-500" />
+                  <span className="text-sm font-medium text-gray-700">{label}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Custom Question */}
+          <div className="mb-6">
+            <form onSubmit={handleCustomQuestion} className="flex gap-2">
+              <input
+                type="text"
+                value={customQuestion}
+                onChange={(e) => setCustomQuestion(e.target.value)}
+                placeholder="Ask your own question about this note..."
+                className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500"
+                disabled={isLoading}
+              />
+              <button
+                type="submit"
+                disabled={!customQuestion.trim() || isLoading}
+                className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500/50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              >
+                <MessageCircle className="w-4 h-4" />
+              </button>
+            </form>
+          </div>
+
+          {/* AI Response */}
+          {(isLoading || aiResponse) && (
+            <div className="bg-blue-50 rounded-lg p-4">
+              <div className="flex items-center gap-2 mb-2">
+                <Brain className={`w-4 h-4 text-blue-500 ${isLoading ? "animate-pulse" : ""}`} />
+                <span className="font-medium text-blue-700">AI Analysis</span>
+              </div>
+              {isLoading ? (
+                <div className="flex items-center gap-2 text-blue-600">
+                  <div className="w-2 h-2 bg-blue-400 rounded-full animate-bounce"></div>
+                  <div
+                    className="w-2 h-2 bg-blue-400 rounded-full animate-bounce"
+                    style={{ animationDelay: "0.1s" }}
+                  ></div>
+                  <div
+                    className="w-2 h-2 bg-blue-400 rounded-full animate-bounce"
+                    style={{ animationDelay: "0.2s" }}
+                  ></div>
+                  <span className="ml-2">Analyzing...</span>
+                </div>
+              ) : (
+                <p className="text-blue-800 whitespace-pre-wrap">{aiResponse}</p>
+              )}
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+};
