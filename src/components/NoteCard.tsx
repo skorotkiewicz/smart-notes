@@ -106,8 +106,8 @@ export const NoteCard: React.FC<NoteCardProps> = ({
 
           {note.aiAnalysis.actionItems && note.aiAnalysis.actionItems.length > 0 && (
             <ul className="text-sm text-gray-700 mb-3 space-y-1">
-              {note.aiAnalysis.actionItems.map((item, index) => (
-                <li key={index} className="flex items-center gap-2">
+              {note.aiAnalysis.actionItems.map((item) => (
+                <li key={item} className="flex items-center gap-2">
                   <div className="w-1.5 h-1.5 bg-blue-400 rounded-full"></div>
                   <span className={note.completed ? "line-through" : ""}>{item}</span>
                 </li>

@@ -271,6 +271,16 @@ export const ConfigModal: React.FC<ConfigModalProps> = ({ isOpen, onClose, onCon
 
           {/* Save Button */}
           <div className="flex justify-end gap-3 pt-4 border-t border-gray-200">
+            <span className="py-2 text-sm text-gray-300 hover:text-gray-400">
+              <a
+                href="https://github.com/skorotkiewicz/smart-notes"
+                target="_blank"
+                rel="noopener noreferrer"
+                title="GitHub Repo"
+              >
+                {import.meta.env.VITE_APP_VERSION}
+              </a>
+            </span>
             <button
               type="button"
               onClick={onClose}

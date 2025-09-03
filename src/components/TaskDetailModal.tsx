@@ -287,8 +287,8 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
                     Action Items:
                   </span>
                   <ul className="space-y-1">
-                    {note.aiAnalysis.actionItems.map((item, index) => (
-                      <li key={index} className="flex items-center gap-2 text-sm text-gray-600">
+                    {note.aiAnalysis.actionItems.map((item) => (
+                      <li key={item} className="flex items-center gap-2 text-sm text-gray-600">
                         <div className="w-1.5 h-1.5 bg-blue-400 rounded-full"></div>
                         {item}
                       </li>
