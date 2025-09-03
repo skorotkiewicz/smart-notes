@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react";
-import { X, Settings, Wifi, RefreshCw } from "lucide-react";
+import { X, Settings, Wifi, RefreshCw, Download, Upload } from "lucide-react";
 import type { AIConfig } from "../types";
 import { configService } from "../services/config";
 import { aiService } from "../services/ai";
+import { exportImportService } from "../services/exportImport";
 
 interface ConfigModalProps {
   isOpen: boolean;
@@ -15,6 +16,8 @@ export const ConfigModal: React.FC<ConfigModalProps> = ({ isOpen, onClose, onCon
   const [availableModels, setAvailableModels] = useState<string[]>([]);
   const [isLoadingModels, setIsLoadingModels] = useState(false);
   const [testStatus, setTestStatus] = useState<"idle" | "testing" | "success" | "error">("idle");
+  const [isExporting, setIsExporting] = useState(false);
+  const [isImporting, setIsImporting] = useState(false);
 
   useEffect(() => {
     if (isOpen) {
@@ -106,6 +109,43 @@ export const ConfigModal: React.FC<ConfigModalProps> = ({ isOpen, onClose, onCon
       gemini: { ...prev.gemini, apikey },
     }));
     setTestStatus("idle");
+  };
+
+  const handleExportData = async () => {
+    setIsExporting(true);
+    try {
+      await exportImportService.downloadExportFile();
+      alert("Data exported successfully!");
+    } catch (error) {
+      console.error("Export failed:", error);
+      alert("Failed to export data. Please try again.");
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
+  const handleImportData = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    if (!file.name.endsWith(".json")) {
+      alert("Please select a valid JSON file");
+      return;
+    }
+
+    setIsImporting(true);
+    try {
+      await exportImportService.uploadImportFile(file);
+      alert("Data imported successfully! The page will reload to apply changes.");
+      window.location.reload();
+    } catch (error) {
+      console.error("Import failed:", error);
+      alert("Failed to import data. Please check the file format.");
+    } finally {
+      setIsImporting(false);
+      // Reset the file input
+      event.target.value = "";
+    }
   };
 
   if (!isOpen) return null;
@@ -286,6 +326,49 @@ export const ConfigModal: React.FC<ConfigModalProps> = ({ isOpen, onClose, onCon
               Save Configuration
             </button>
           </div>
+        </div>
+
+        {/* Data Management Section */}
+        <div className="p-6 border-t border-gray-200">
+          <h3 className="text-sm font-medium text-gray-900 mb-4">Data Management</h3>
+          <div className="flex flex-col sm:flex-row gap-3">
+            <button
+              type="button"
+              onClick={handleExportData}
+              disabled={isExporting}
+              className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            >
+              <Download className="w-4 h-4" />
+              {isExporting ? "Exporting..." : "Export Data"}
+            </button>
+
+            <label className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-purple-500 text-white rounded-lg hover:bg-purple-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors cursor-pointer">
+              <Upload className="w-4 h-4" />
+              {isImporting ? "Importing..." : "Import Data"}
+              <input
+                type="file"
+                accept=".json"
+                onChange={handleImportData}
+                disabled={isImporting}
+                className="hidden"
+              />
+            </label>
+          </div>
+          <p className="text-xs text-gray-500 mt-2">
+            Export creates a JSON file with all your notes and settings. Import will replace your
+            current data.
+          </p>
+
+          <p className="py-2 text-sm text-gray-400 hover:text-gray-500">
+            <a
+              href="https://github.com/skorotkiewicz/smart-notes"
+              target="_blank"
+              rel="noopener noreferrer"
+              title="GitHub Repo"
+            >
+              build {import.meta.env.VITE_APP_VERSION}
+            </a>
+          </p>
         </div>
       </div>
     </div>

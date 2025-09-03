@@ -24,9 +24,7 @@ export function extractAndParseJSON(response: string): any {
         if (match) {
           try {
             return JSON.parse(match[0]);
-          } catch {
-            continue;
-          }
+          } catch {}
         }
       }
 
@@ -39,9 +37,7 @@ export function extractAndParseJSON(response: string): any {
         for (const jsonCandidate of matches) {
           try {
             return JSON.parse(jsonCandidate);
-          } catch {
-            continue;
-          }
+          } catch {}
         }
       }
 

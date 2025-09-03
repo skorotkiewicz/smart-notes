@@ -35,6 +35,7 @@ export const ollamaService = {
         summary: analysis.summary || content.substring(0, 50),
         actionItems: analysis.actionItems || [],
         dueContext: analysis.dueContext,
+        model: config.model,
       };
     } catch (error) {
       console.error("Error analyzing note:", error);
@@ -45,6 +46,7 @@ export const ollamaService = {
         summary: content.substring(0, 50),
         actionItems: [],
         dueContext: undefined,
+        model: "unknown",
       };
     }
   },

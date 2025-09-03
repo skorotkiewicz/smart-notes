@@ -7,6 +7,7 @@ export interface SmartNote {
     summary: string;
     actionItems?: string[];
     dueContext?: string;
+    model?: string;
   };
   timestamp: number;
   completed?: boolean;
@@ -41,6 +42,7 @@ export interface OllamaResponse {
   summary: string;
   actionItems?: string[];
   dueContext?: string;
+  model?: string;
 }
 
 export interface GeminiResponse {

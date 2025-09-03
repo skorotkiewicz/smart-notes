@@ -91,14 +91,6 @@ function App() {
         onClose={() => setIsConfigOpen(false)}
         onConfigUpdate={handleConfigUpdate}
       />
-      build:
-      <a
-        href="https://github.com/skorotkiewicz/smart-notes"
-        target="_blank"
-        rel="noopener noreferrer"
-      >
-        {import.meta.env.VITE_APP_VERSION}
-      </a>
     </div>
   );
 }
