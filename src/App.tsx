@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Header } from "./components/Header";
 import { NoteInput } from "./components/NoteInput";
 import { NotesList } from "./components/NotesList";
@@ -23,6 +23,28 @@ function App() {
   const [selectedNote, setSelectedNote] = useState<SmartNote | null>(null);
   const [isConfigOpen, setIsConfigOpen] = useState(false);
   const [configKey, setConfigKey] = useState(0); // Force re-render after config change
+
+  // Global keyboard shortcuts
+  useEffect(() => {
+    const handleGlobalKeyDown = (e: KeyboardEvent) => {
+      // Ctrl+Comma opens config modal when no modal or note open
+      if (selectedNote === null && !isConfigOpen) {
+        if (e.ctrlKey && e.key === ",") {
+          e.preventDefault();
+          setIsConfigOpen(true);
+        }
+      }
+      // Escape closes modals or selected note
+      if (e.key === "Escape") {
+        if (isConfigOpen) setIsConfigOpen(false);
+        if (selectedNote !== null) setSelectedNote(null);
+      }
+    };
+    window.addEventListener("keydown", handleGlobalKeyDown);
+    return () => {
+      window.removeEventListener("keydown", handleGlobalKeyDown);
+    };
+  }, [selectedNote, isConfigOpen]);
 
   const prioritized = getPrioritizedNotes();
   const urgentCount = prioritized.urgent.length;
