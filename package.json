@@ -25,9 +25,17 @@
     "@biomejs/biome": "^2.2.2",
     "@types/react": "^19.1.12",
     "@types/react-dom": "^19.1.9",
+    "@vite-pwa/assets-generator": "^1.0.0",
     "@vitejs/plugin-react": "^5.0.2",
     "globals": "^16.3.0",
     "typescript": "^5.9.2",
-    "vite": "^7.1.4"
+    "vite": "^7.1.4",
+    "vite-plugin-pwa": "^1.0.3",
+    "workbox-core": "^7.3.0",
+    "workbox-window": "^7.3.0"
+  },
+  "resolutions": {
+    "sharp": "0.32.6",
+    "sharp-ico": "0.1.5"
   }
 }

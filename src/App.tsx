@@ -7,6 +7,7 @@ import { TaskDetailModal } from "./components/TaskDetailModal";
 import { ConfigModal } from "./components/ConfigModal";
 import { useNotes } from "./hooks/useNotes";
 import type { SmartNote } from "./types";
+import PWABadge from "./components/PWABadge";
 
 function App() {
   const {
@@ -91,6 +92,7 @@ function App() {
         onClose={() => setIsConfigOpen(false)}
         onConfigUpdate={handleConfigUpdate}
       />
+      <PWABadge />
     </div>
   );
 }
