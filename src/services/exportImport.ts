@@ -1,4 +1,4 @@
-import { get, set, keys, del } from "idb-keyval";
+import { del, get, keys, set } from "idb-keyval";
 import type { SmartNote } from "../types";
 
 const NOTES_KEY_PREFIX = "smart-note-";
@@ -61,7 +61,9 @@ export const exportImportService = {
         throw new Error("Invalid export file format");
       }
 
-      console.log(`Importing data from version ${data.version} exported at ${new Date(data.timestamp).toISOString()}`);
+      console.log(
+        `Importing data from version ${data.version} exported at ${new Date(data.timestamp).toISOString()}`,
+      );
 
       // Clear existing notes from IndexedDB
       const allKeys = await keys();
@@ -107,7 +109,7 @@ export const exportImportService = {
 
       const a = document.createElement("a");
       a.href = url;
-      a.download = `smart-notes-backup-${new Date().toISOString().split('T')[0]}.json`;
+      a.download = `smart-notes-backup-${new Date().toISOString().split("T")[0]}.json`;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);

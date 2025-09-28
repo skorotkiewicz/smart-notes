@@ -1,9 +1,9 @@
-import { useState, useEffect } from "react";
-import { X, Settings, Wifi, RefreshCw, Download, Upload } from "lucide-react";
-import type { AIConfig } from "../types";
-import { configService } from "../services/config";
+import { Download, RefreshCw, Settings, Upload, Wifi, X } from "lucide-react";
+import { useEffect, useState } from "react";
 import { aiService } from "../services/ai";
+import { configService } from "../services/config";
 import { exportImportService } from "../services/exportImport";
+import type { AIConfig } from "../types";
 
 interface ConfigModalProps {
   isOpen: boolean;
@@ -61,8 +61,16 @@ export const ConfigModal: React.FC<ConfigModalProps> = ({ isOpen, onClose, onCon
         configService.saveConfig(originalConfig);
       }
     } else {
-      // Test Gemini connection would be implemented here
-      setTestStatus("success"); // For now, assume success
+      // Test Gemini/OpenAI connection
+      try {
+        const isConnected = await aiService.testConnection();
+        setTestStatus(isConnected ? "success" : "error");
+        if (isConnected) {
+          await loadModels();
+        }
+      } catch (_error) {
+        setTestStatus("error");
+      }
     }
   };
 
@@ -76,7 +84,7 @@ export const ConfigModal: React.FC<ConfigModalProps> = ({ isOpen, onClose, onCon
     onClose();
   };
 
-  const handleProviderChange = (provider: "ollama" | "gemini") => {
+  const handleProviderChange = (provider: "ollama" | "gemini" | "openai") => {
     setAiConfig((prev) => ({ ...prev, provider }));
     setTestStatus("idle");
   };
@@ -95,10 +103,15 @@ export const ConfigModal: React.FC<ConfigModalProps> = ({ isOpen, onClose, onCon
         ...prev,
         ollama: { ...prev.ollama, model },
       }));
-    } else {
+    } else if (aiConfig.provider === "gemini") {
       setAiConfig((prev) => ({
         ...prev,
         gemini: { ...prev.gemini, model },
+      }));
+    } else if (aiConfig.provider === "openai") {
+      setAiConfig((prev) => ({
+        ...prev,
+        openai: { ...prev.openai, model },
       }));
     }
   };
@@ -107,6 +120,22 @@ export const ConfigModal: React.FC<ConfigModalProps> = ({ isOpen, onClose, onCon
     setAiConfig((prev) => ({
       ...prev,
       gemini: { ...prev.gemini, apikey },
+    }));
+    setTestStatus("idle");
+  };
+
+  const handleOpenAIApiKeyChange = (apikey: string) => {
+    setAiConfig((prev) => ({
+      ...prev,
+      openai: { ...prev.openai, apikey },
+    }));
+    setTestStatus("idle");
+  };
+
+  const handleOpenAIBaseUrlChange = (baseUrl: string) => {
+    setAiConfig((prev) => ({
+      ...prev,
+      openai: { ...prev.openai, baseUrl },
     }));
     setTestStatus("idle");
   };
@@ -152,33 +181,37 @@ export const ConfigModal: React.FC<ConfigModalProps> = ({ isOpen, onClose, onCon
 
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full">
-        <div className="flex items-center justify-between p-6 border-b border-gray-200">
+      <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl max-w-md w-full">
+        <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
           <div className="flex items-center gap-2">
-            <Settings className="w-5 h-5 text-gray-600" />
-            <h2 className="text-xl font-semibold text-gray-900">AI Configuration</h2>
+            <Settings className="w-5 h-5 text-gray-600 dark:text-gray-300" />
+            <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
+              AI Configuration
+            </h2>
           </div>
           <button
             type="button"
             onClick={onClose}
-            className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+            className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
           >
-            <X className="w-5 h-5" />
+            <X className="w-5 h-5 text-gray-600 dark:text-gray-300" />
           </button>
         </div>
 
         <div className="p-6 space-y-6">
           {/* Provider Selection */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">AI Provider</label>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              AI Provider
+            </label>
             <div className="flex gap-2">
               <button
                 type="button"
                 onClick={() => handleProviderChange("ollama")}
                 className={`flex-1 px-3 py-2 rounded-lg border transition-colors ${
                   aiConfig.provider === "ollama"
-                    ? "bg-blue-100 border-blue-300 text-blue-700"
-                    : "bg-gray-50 border-gray-300 text-gray-700 hover:bg-gray-100"
+                    ? "bg-blue-100 dark:bg-blue-900 border-blue-300 dark:border-blue-700 text-blue-700 dark:text-blue-300"
+                    : "bg-gray-50 dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600"
                 }`}
               >
                 Ollama
@@ -188,11 +221,22 @@ export const ConfigModal: React.FC<ConfigModalProps> = ({ isOpen, onClose, onCon
                 onClick={() => handleProviderChange("gemini")}
                 className={`flex-1 px-3 py-2 rounded-lg border transition-colors ${
                   aiConfig.provider === "gemini"
-                    ? "bg-blue-100 border-blue-300 text-blue-700"
-                    : "bg-gray-50 border-gray-300 text-gray-700 hover:bg-gray-100"
+                    ? "bg-blue-100 dark:bg-blue-900 border-blue-300 dark:border-blue-700 text-blue-700 dark:text-blue-300"
+                    : "bg-gray-50 dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600"
                 }`}
               >
                 Google Gemini
+              </button>
+              <button
+                type="button"
+                onClick={() => handleProviderChange("openai")}
+                className={`flex-1 px-3 py-2 rounded-lg border transition-colors ${
+                  aiConfig.provider === "openai"
+                    ? "bg-blue-100 dark:bg-blue-900 border-blue-300 dark:border-blue-700 text-blue-700 dark:text-blue-300"
+                    : "bg-gray-50 dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600"
+                }`}
+              >
+                OpenAI
               </button>
             </div>
           </div>
@@ -201,7 +245,7 @@ export const ConfigModal: React.FC<ConfigModalProps> = ({ isOpen, onClose, onCon
             <>
               {/* Ollama URL Configuration */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   Ollama API URL
                 </label>
                 <div className="flex gap-2">
@@ -210,7 +254,7 @@ export const ConfigModal: React.FC<ConfigModalProps> = ({ isOpen, onClose, onCon
                     value={aiConfig.ollama.url}
                     onChange={(e) => handleUrlChange(e.target.value)}
                     placeholder="http://localhost:11434"
-                    className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500"
+                    className="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500"
                   />
                   <button
                     type="button"
@@ -218,10 +262,10 @@ export const ConfigModal: React.FC<ConfigModalProps> = ({ isOpen, onClose, onCon
                     disabled={testStatus === "testing"}
                     className={`px-3 py-2 rounded-lg font-medium transition-colors ${
                       testStatus === "success"
-                        ? "bg-green-100 text-green-700"
+                        ? "bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300"
                         : testStatus === "error"
-                          ? "bg-red-100 text-red-700"
-                          : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                          ? "bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-300"
+                          : "bg-gray-100 dark:bg-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-500"
                     }`}
                   >
                     {testStatus === "testing" ? (
@@ -232,10 +276,12 @@ export const ConfigModal: React.FC<ConfigModalProps> = ({ isOpen, onClose, onCon
                   </button>
                 </div>
                 {testStatus === "success" && (
-                  <p className="text-sm text-green-600 mt-1">✓ Connection successful</p>
+                  <p className="text-sm text-green-600 dark:text-green-400 mt-1">
+                    ✓ Connection successful
+                  </p>
                 )}
                 {testStatus === "error" && (
-                  <p className="text-sm text-red-600 mt-1">✗ Connection failed</p>
+                  <p className="text-sm text-red-600 dark:text-red-400 mt-1">✗ Connection failed</p>
                 )}
               </div>
             </>
@@ -245,13 +291,75 @@ export const ConfigModal: React.FC<ConfigModalProps> = ({ isOpen, onClose, onCon
             <>
               {/* Gemini API Key Configuration */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">API Key</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  API Key
+                </label>
                 <input
                   type="password"
                   value={aiConfig.gemini.apikey}
                   onChange={(e) => handleApiKeyChange(e.target.value)}
                   placeholder="Enter your Google Gemini API key"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500"
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500"
+                />
+              </div>
+            </>
+          )}
+
+          {aiConfig.provider === "openai" && (
+            <>
+              {/* OpenAI Base URL Configuration */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  OpenAI API Base URL
+                </label>
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    value={aiConfig.openai.baseUrl}
+                    onChange={(e) => handleOpenAIBaseUrlChange(e.target.value)}
+                    placeholder="https://api.openai.com/v1"
+                    className="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500"
+                  />
+                  <button
+                    type="button"
+                    onClick={testConnection}
+                    disabled={testStatus === "testing"}
+                    className={`px-3 py-2 rounded-lg font-medium transition-colors ${
+                      testStatus === "success"
+                        ? "bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300"
+                        : testStatus === "error"
+                          ? "bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-300"
+                          : "bg-gray-100 dark:bg-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-500"
+                    }`}
+                  >
+                    {testStatus === "testing" ? (
+                      <RefreshCw className="w-4 h-4 animate-spin" />
+                    ) : (
+                      <Wifi className="w-4 h-4" />
+                    )}
+                  </button>
+                </div>
+                {testStatus === "success" && (
+                  <p className="text-sm text-green-600 dark:text-green-400 mt-1">
+                    ✓ Connection successful
+                  </p>
+                )}
+                {testStatus === "error" && (
+                  <p className="text-sm text-red-600 dark:text-red-400 mt-1">✗ Connection failed</p>
+                )}
+              </div>
+
+              {/* OpenAI API Key Configuration */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  API Key
+                </label>
+                <input
+                  type="password"
+                  value={aiConfig.openai.apikey}
+                  onChange={(e) => handleOpenAIApiKeyChange(e.target.value)}
+                  placeholder="Enter your OpenAI API key"
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500"
                 />
               </div>
             </>
@@ -259,13 +367,15 @@ export const ConfigModal: React.FC<ConfigModalProps> = ({ isOpen, onClose, onCon
 
           {/* Model Selection */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Model</label>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Model
+            </label>
             {aiConfig.provider === "ollama" ? (
               <div className="flex gap-2">
                 <select
                   value={aiConfig.ollama.model}
                   onChange={(e) => handleModelChange(e.target.value)}
-                  className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500"
+                  className="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500"
                   disabled={isLoadingModels}
                 >
                   <option value={aiConfig.ollama.model}>{aiConfig.ollama.model}</option>
@@ -281,40 +391,77 @@ export const ConfigModal: React.FC<ConfigModalProps> = ({ isOpen, onClose, onCon
                   type="button"
                   onClick={loadModels}
                   disabled={isLoadingModels}
-                  className="px-3 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors disabled:opacity-50"
+                  className="px-3 py-2 bg-gray-100 dark:bg-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-500 transition-colors disabled:opacity-50"
                 >
                   <RefreshCw className={`w-4 h-4 ${isLoadingModels ? "animate-spin" : ""}`} />
                 </button>
               </div>
-            ) : (
+            ) : aiConfig.provider === "gemini" ? (
               <select
                 value={aiConfig.gemini.model}
                 onChange={(e) => handleModelChange(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500"
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500"
               >
-                <option value="gemini-1.5-flash">gemini-1.5-flash</option>
-                <option value="gemini-1.5-pro">gemini-2.5-flash</option>
+                <option value="gemini-2.5-flash">gemini-2.5-flash</option>
+                <option value="gemini-2.5-flash-lite">gemini-2.5-flash-lite</option>
               </select>
+            ) : (
+              <div className="flex gap-2">
+                <select
+                  value={aiConfig.openai.model}
+                  onChange={(e) => handleModelChange(e.target.value)}
+                  className="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500"
+                  disabled={isLoadingModels}
+                >
+                  <option value={aiConfig.openai.model}>{aiConfig.openai.model}</option>
+                  {availableModels
+                    .filter((model) => model !== aiConfig.openai.model)
+                    .map((model) => (
+                      <option key={model} value={model}>
+                        {model}
+                      </option>
+                    ))}
+                </select>
+                <button
+                  type="button"
+                  onClick={loadModels}
+                  disabled={isLoadingModels}
+                  className="px-3 py-2 bg-gray-100 dark:bg-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-500 transition-colors disabled:opacity-50"
+                >
+                  <RefreshCw className={`w-4 h-4 ${isLoadingModels ? "animate-spin" : ""}`} />
+                </button>
+              </div>
             )}
-            {aiConfig.provider === "ollama" && isLoadingModels && (
-              <p className="text-sm text-gray-500 mt-1">Loading available models...</p>
-            )}
+            {(aiConfig.provider === "ollama" || aiConfig.provider === "openai") &&
+              isLoadingModels && (
+                <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                  Loading available models...
+                </p>
+              )}
             {aiConfig.provider === "ollama" &&
               availableModels.length === 0 &&
               !isLoadingModels &&
               testStatus === "success" && (
-                <p className="text-sm text-amber-600 mt-1">
+                <p className="text-sm text-amber-600 dark:text-amber-400 mt-1">
                   No models found. Make sure Ollama has models installed.
+                </p>
+              )}
+            {aiConfig.provider === "openai" &&
+              availableModels.length === 0 &&
+              !isLoadingModels &&
+              testStatus === "success" && (
+                <p className="text-sm text-amber-600 dark:text-amber-400 mt-1">
+                  No models found. Make sure your OpenAI API key is valid.
                 </p>
               )}
           </div>
 
           {/* Save Button */}
-          <div className="flex justify-end gap-3 pt-4 border-t border-gray-200">
+          <div className="flex justify-end gap-3 pt-4 border-t border-gray-200 dark:border-gray-700">
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors"
+              className="px-4 py-2 text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:hover:text-white transition-colors"
             >
               Cancel
             </button>
@@ -329,8 +476,10 @@ export const ConfigModal: React.FC<ConfigModalProps> = ({ isOpen, onClose, onCon
         </div>
 
         {/* Data Management Section */}
-        <div className="p-6 border-t border-gray-200">
-          <h3 className="text-sm font-medium text-gray-900 mb-4">Data Management</h3>
+        <div className="p-6 border-t border-gray-200 dark:border-gray-700">
+          <h3 className="text-sm font-medium text-gray-900 dark:text-white mb-4">
+            Data Management
+          </h3>
           <div className="flex flex-col sm:flex-row gap-3">
             <button
               type="button"
@@ -354,12 +503,12 @@ export const ConfigModal: React.FC<ConfigModalProps> = ({ isOpen, onClose, onCon
               />
             </label>
           </div>
-          <p className="text-xs text-gray-500 mt-2">
+          <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
             Export creates a JSON file with all your notes and settings. Import will replace your
             current data.
           </p>
 
-          <p className="py-2 text-sm text-gray-400 hover:text-gray-500">
+          <p className="py-2 text-sm text-gray-400 dark:text-gray-500 hover:text-gray-500 dark:hover:text-gray-400">
             <a
               href="https://github.com/skorotkiewicz/smart-notes"
               target="_blank"

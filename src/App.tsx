@@ -1,10 +1,11 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { ConfigModal } from "./components/ConfigModal";
+import { ConnectionStatus } from "./components/ConnectionStatus";
 import { Header } from "./components/Header";
 import { NoteInput } from "./components/NoteInput";
 import { NotesList } from "./components/NotesList";
-import { ConnectionStatus } from "./components/ConnectionStatus";
+import PWABadge from "./components/PWABadge";
 import { TaskDetailModal } from "./components/TaskDetailModal";
-import { ConfigModal } from "./components/ConfigModal";
 import { useNotes } from "./hooks/useNotes";
 import type { SmartNote } from "./types";
 
@@ -22,6 +23,28 @@ function App() {
   const [selectedNote, setSelectedNote] = useState<SmartNote | null>(null);
   const [isConfigOpen, setIsConfigOpen] = useState(false);
   const [configKey, setConfigKey] = useState(0); // Force re-render after config change
+
+  // Global keyboard shortcuts
+  useEffect(() => {
+    const handleGlobalKeyDown = (e: KeyboardEvent) => {
+      // Ctrl+Comma opens config modal when no modal or note open
+      if (selectedNote === null && !isConfigOpen) {
+        if (e.ctrlKey && e.key === ",") {
+          e.preventDefault();
+          setIsConfigOpen(true);
+        }
+      }
+      // Escape closes modals or selected note
+      if (e.key === "Escape") {
+        if (isConfigOpen) setIsConfigOpen(false);
+        if (selectedNote !== null) setSelectedNote(null);
+      }
+    };
+    window.addEventListener("keydown", handleGlobalKeyDown);
+    return () => {
+      window.removeEventListener("keydown", handleGlobalKeyDown);
+    };
+  }, [selectedNote, isConfigOpen]);
 
   const prioritized = getPrioritizedNotes();
   const urgentCount = prioritized.urgent.length;
@@ -45,7 +68,7 @@ function App() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
       <ConnectionStatus key={configKey} onOpenConfig={() => setIsConfigOpen(true)} />
       <div className="container mx-auto px-4 py-8">
         <Header totalNotes={totalActiveNotes} urgentCount={urgentCount} />
@@ -61,7 +84,7 @@ function App() {
       </div>
       {urgentCount > 0 && (
         <div className="fixed bottom-4 left-4 right-4 md:left-auto md:right-4 md:w-80">
-          <div className="bg-red-500 text-white p-4 rounded-xl shadow-lg">
+          <div className="bg-red-500 dark:bg-red-600 text-white p-4 rounded-xl shadow-lg">
             <div className="flex items-center gap-2 mb-2">
               <div className="w-2 h-2 bg-white rounded-full animate-pulse"></div>
               <span className="font-medium">You have {urgentCount} urgent tasks!</span>
@@ -91,6 +114,7 @@ function App() {
         onClose={() => setIsConfigOpen(false)}
         onConfigUpdate={handleConfigUpdate}
       />
+      <PWABadge />
     </div>
   );
 }

@@ -23,10 +23,17 @@ export interface GeminiConfig {
   model: string;
 }
 
+export interface OpenAIConfig {
+  apikey: string;
+  model: string;
+  baseUrl: string;
+}
+
 export interface AIConfig {
-  provider: "ollama" | "gemini";
+  provider: "ollama" | "gemini" | "openai";
   ollama: OllamaConfig;
   gemini: GeminiConfig;
+  openai: OpenAIConfig;
 }
 
 export interface OllamaModel {
@@ -51,6 +58,14 @@ export interface GeminiResponse {
       parts?: Array<{
         text?: string;
       }>;
+    };
+  }>;
+}
+
+export interface OpenAIResponse {
+  choices?: Array<{
+    message?: {
+      content?: string;
     };
   }>;
 }

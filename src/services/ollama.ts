@@ -1,7 +1,7 @@
 import type { OllamaResponse } from "../types";
-import { configService } from "./config";
-import { ANALYSIS_PROMPT, ASK_PROMPT } from "../utils/prompts";
 import { extractAndParseJSON } from "../utils/jsonParser";
+import { ANALYSIS_PROMPT, ASK_PROMPT } from "../utils/prompts";
+import { configService } from "./config";
 
 export const ollamaService = {
   async analyzeNote(content: string): Promise<OllamaResponse> {

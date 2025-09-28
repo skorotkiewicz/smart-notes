@@ -1,7 +1,7 @@
+import { AlertCircle, BookOpen, Clock, Lightbulb, Search, Target } from "lucide-react";
 import { useState } from "react";
-import { Target, Clock, Lightbulb, BookOpen, AlertCircle, Search } from "lucide-react";
-import { NoteCard } from "./NoteCard";
 import type { SmartNote } from "../types";
+import { NoteCard } from "./NoteCard";
 
 interface NotesListProps {
   notes: SmartNote[];
@@ -52,7 +52,7 @@ export const NotesList: React.FC<NotesListProps> = ({
     return (
       note.content.toLowerCase().includes(query) ||
       note.aiAnalysis.summary.toLowerCase().includes(query) ||
-      note.aiAnalysis.actionItems?.some(item => item.toLowerCase().includes(query)) ||
+      note.aiAnalysis.actionItems?.some((item) => item.toLowerCase().includes(query)) ||
       false
     );
   });
@@ -103,9 +103,9 @@ export const NotesList: React.FC<NotesListProps> = ({
   if (notes.length === 0) {
     return (
       <div className="text-center py-16">
-        <BookOpen className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-        <h3 className="text-xl font-medium text-gray-600 mb-2">No notes yet</h3>
-        <p className="text-gray-400">Start by adding your first thought above</p>
+        <BookOpen className="w-16 h-16 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
+        <h3 className="text-xl font-medium text-gray-600 dark:text-gray-300 mb-2">No notes yet</h3>
+        <p className="text-gray-400 dark:text-gray-500">Start by adding your first thought above</p>
       </div>
     );
   }
@@ -114,18 +114,18 @@ export const NotesList: React.FC<NotesListProps> = ({
     <div className="w-full max-w-4xl mx-auto">
       <div className="mb-6">
         <div className="relative">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-gray-500 w-5 h-5" />
           <input
             type="text"
             placeholder="Search tasks by content, summary, or action items..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-10 pr-4 py-3 bg-white border border-gray-200 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+            className="w-full pl-10 pr-4 py-3 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 text-gray-900 dark:text-white rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
           />
         </div>
       </div>
-      
-      <div className="flex flex-wrap gap-2 mb-6 p-1 bg-gray-100 rounded-xl">
+
+      <div className="flex flex-wrap gap-2 mb-6 p-1 bg-gray-100 dark:bg-gray-700 rounded-xl">
         {filters.map(({ key, label, icon: Icon, count }) => (
           <button
             type="button"
@@ -133,8 +133,8 @@ export const NotesList: React.FC<NotesListProps> = ({
             onClick={() => setFilter(key)}
             className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
               filter === key
-                ? "bg-white text-blue-600 shadow-md"
-                : "text-gray-600 hover:text-blue-600 hover:bg-white/50"
+                ? "bg-white dark:bg-gray-600 text-blue-600 dark:text-blue-400 shadow-md"
+                : "text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-white/50 dark:hover:bg-gray-600/50"
             }`}
           >
             <Icon className="w-4 h-4" />
@@ -142,7 +142,9 @@ export const NotesList: React.FC<NotesListProps> = ({
             {count > 0 && (
               <span
                 className={`px-2 py-0.5 rounded-full text-xs ${
-                  filter === key ? "bg-blue-100 text-blue-600" : "bg-gray-200 text-gray-600"
+                  filter === key
+                    ? "bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-300"
+                    : "bg-gray-200 dark:bg-gray-600 text-gray-600 dark:text-gray-300"
                 }`}
               >
                 {count}
@@ -155,17 +157,16 @@ export const NotesList: React.FC<NotesListProps> = ({
       <div className="space-y-4">
         {filteredNotes.length === 0 ? (
           <div className="text-center py-8">
-            <p className="text-gray-400">
-              {searchQuery.trim() 
-                ? `No tasks found matching "${searchQuery}"` 
-                : "No notes in this category"
-              }
+            <p className="text-gray-400 dark:text-gray-500">
+              {searchQuery.trim()
+                ? `No tasks found matching "${searchQuery}"`
+                : "No notes in this category"}
             </p>
             {searchQuery.trim() && (
               <button
                 type="button"
                 onClick={() => setSearchQuery("")}
-                className="mt-2 text-blue-600 hover:text-blue-800 text-sm font-medium"
+                className="mt-2 text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 text-sm font-medium"
               >
                 Clear search
               </button>
