@@ -1,4 +1,5 @@
-import { Brain, Sparkles } from "lucide-react";
+import { Brain, Moon, Sparkles, Sun } from "lucide-react";
+import { useTheme } from "../contexts/ThemeContext";
 
 interface HeaderProps {
   totalNotes: number;
@@ -6,8 +7,23 @@ interface HeaderProps {
 }
 
 export const Header: React.FC<HeaderProps> = ({ totalNotes, urgentCount }) => {
+  const { theme, toggleTheme } = useTheme();
   return (
-    <header className="w-full max-w-4xl mx-auto mb-8 text-center">
+    <header className="w-full max-w-4xl mx-auto mb-8 text-center relative">
+      {/* Theme toggle button */}
+      <button
+        type="button"
+        onClick={toggleTheme}
+        className="absolute top-0 right-0 p-2 rounded-lg bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+        aria-label="Toggle theme"
+      >
+        {theme === "light" ? (
+          <Moon className="w-5 h-5 text-gray-600 dark:text-gray-300" />
+        ) : (
+          <Sun className="w-5 h-5 text-gray-600 dark:text-gray-300" />
+        )}
+      </button>
+
       <div className="flex items-center justify-center gap-3 mb-4">
         <div className="p-3 bg-gradient-to-r from-blue-500 to-purple-600 rounded-2xl shadow-lg">
           <Brain className="w-8 h-8 text-white" />

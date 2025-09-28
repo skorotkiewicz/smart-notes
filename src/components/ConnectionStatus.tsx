@@ -1,5 +1,5 @@
-import { useState, useEffect } from "react";
-import { WifiOff, Wifi } from "lucide-react";
+import { Wifi, WifiOff } from "lucide-react";
+import { useEffect, useState } from "react";
 import { aiService } from "../services/ai";
 import { configService } from "../services/config";
 
@@ -24,7 +24,15 @@ export const ConnectionStatus: React.FC<ConnectionStatusProps> = ({ onOpenConfig
 
   const checkConnection = async () => {
     const aiConfig = configService.getAIConfig();
-    setCurrentProvider(aiConfig.provider === "ollama" ? "Ollama" : "Gemini");
+    const providerName =
+      aiConfig.provider === "ollama"
+        ? "Ollama"
+        : aiConfig.provider === "gemini"
+          ? "Gemini"
+          : aiConfig.provider === "openai"
+            ? "OpenAI"
+            : "Unknown";
+    setCurrentProvider(providerName);
 
     const connected = await aiService.testConnection();
     setIsConnected(connected);

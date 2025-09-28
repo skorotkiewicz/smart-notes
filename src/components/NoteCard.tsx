@@ -1,12 +1,12 @@
 import {
-  CheckCircle,
-  Circle,
-  Trash2,
-  Clock,
-  Lightbulb,
   AlertCircle,
   BookOpen,
+  CheckCircle,
+  Circle,
+  Clock,
+  Lightbulb,
   Target,
+  Trash2,
 } from "lucide-react";
 import type { SmartNote } from "../types";
 

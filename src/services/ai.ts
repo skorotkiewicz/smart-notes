@@ -1,9 +1,10 @@
 import type { OllamaResponse } from "../types";
-import { configService } from "./config";
-import { ollamaService } from "./ollama";
-import { geminiService } from "./gemini";
-import { ANALYSIS_PROMPT, ASK_PROMPT } from "../utils/prompts";
 import { extractAndParseJSON } from "../utils/jsonParser";
+import { ANALYSIS_PROMPT, ASK_PROMPT } from "../utils/prompts";
+import { configService } from "./config";
+import { geminiService } from "./gemini";
+import { ollamaService } from "./ollama";
+import { openaiService } from "./openai";
 
 export const aiService = {
   async analyzeNote(content: string): Promise<OllamaResponse> {
@@ -39,6 +40,10 @@ export const aiService = {
       }
     }
 
+    if (aiConfig.provider === "openai") {
+      return await openaiService.analyzeNote(content, aiConfig.openai);
+    }
+
     return await ollamaService.analyzeNote(content);
   },
 
@@ -54,6 +59,10 @@ export const aiService = {
       return parsed.answer || response;
     }
 
+    if (aiConfig.provider === "openai") {
+      return await openaiService.askQuestion(noteContent, question, aiConfig.openai);
+    }
+
     return await ollamaService.askQuestion(noteContent, question);
   },
 
@@ -64,6 +73,10 @@ export const aiService = {
       return await geminiService.testConnection(aiConfig.gemini);
     }
 
+    if (aiConfig.provider === "openai") {
+      return await openaiService.testConnection(aiConfig.openai);
+    }
+
     return await ollamaService.testConnection();
   },
 
@@ -72,7 +85,11 @@ export const aiService = {
 
     if (aiConfig.provider === "gemini") {
       // Return predefined Gemini models
-      return ["gemini-1.5-flash", "gemini-2.5-flash"];
+      return ["gemini-2.5-flash-lite"];
+    }
+
+    if (aiConfig.provider === "openai") {
+      return await openaiService.getAvailableModels(aiConfig.openai);
     }
 
     return await ollamaService.getAvailableModels();

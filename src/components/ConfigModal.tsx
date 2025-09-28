@@ -1,9 +1,9 @@
-import { useState, useEffect } from "react";
-import { X, Settings, Wifi, RefreshCw, Download, Upload } from "lucide-react";
-import type { AIConfig } from "../types";
-import { configService } from "../services/config";
+import { Download, RefreshCw, Settings, Upload, Wifi, X } from "lucide-react";
+import { useEffect, useState } from "react";
 import { aiService } from "../services/ai";
+import { configService } from "../services/config";
 import { exportImportService } from "../services/exportImport";
+import type { AIConfig } from "../types";
 
 interface ConfigModalProps {
   isOpen: boolean;
@@ -61,8 +61,16 @@ export const ConfigModal: React.FC<ConfigModalProps> = ({ isOpen, onClose, onCon
         configService.saveConfig(originalConfig);
       }
     } else {
-      // Test Gemini connection would be implemented here
-      setTestStatus("success"); // For now, assume success
+      // Test Gemini/OpenAI connection
+      try {
+        const isConnected = await aiService.testConnection();
+        setTestStatus(isConnected ? "success" : "error");
+        if (isConnected) {
+          await loadModels();
+        }
+      } catch (_error) {
+        setTestStatus("error");
+      }
     }
   };
 
@@ -76,7 +84,7 @@ export const ConfigModal: React.FC<ConfigModalProps> = ({ isOpen, onClose, onCon
     onClose();
   };
 
-  const handleProviderChange = (provider: "ollama" | "gemini") => {
+  const handleProviderChange = (provider: "ollama" | "gemini" | "openai") => {
     setAiConfig((prev) => ({ ...prev, provider }));
     setTestStatus("idle");
   };
@@ -95,10 +103,15 @@ export const ConfigModal: React.FC<ConfigModalProps> = ({ isOpen, onClose, onCon
         ...prev,
         ollama: { ...prev.ollama, model },
       }));
-    } else {
+    } else if (aiConfig.provider === "gemini") {
       setAiConfig((prev) => ({
         ...prev,
         gemini: { ...prev.gemini, model },
+      }));
+    } else if (aiConfig.provider === "openai") {
+      setAiConfig((prev) => ({
+        ...prev,
+        openai: { ...prev.openai, model },
       }));
     }
   };
@@ -107,6 +120,22 @@ export const ConfigModal: React.FC<ConfigModalProps> = ({ isOpen, onClose, onCon
     setAiConfig((prev) => ({
       ...prev,
       gemini: { ...prev.gemini, apikey },
+    }));
+    setTestStatus("idle");
+  };
+
+  const handleOpenAIApiKeyChange = (apikey: string) => {
+    setAiConfig((prev) => ({
+      ...prev,
+      openai: { ...prev.openai, apikey },
+    }));
+    setTestStatus("idle");
+  };
+
+  const handleOpenAIBaseUrlChange = (baseUrl: string) => {
+    setAiConfig((prev) => ({
+      ...prev,
+      openai: { ...prev.openai, baseUrl },
     }));
     setTestStatus("idle");
   };
@@ -194,6 +223,17 @@ export const ConfigModal: React.FC<ConfigModalProps> = ({ isOpen, onClose, onCon
               >
                 Google Gemini
               </button>
+              <button
+                type="button"
+                onClick={() => handleProviderChange("openai")}
+                className={`flex-1 px-3 py-2 rounded-lg border transition-colors ${
+                  aiConfig.provider === "openai"
+                    ? "bg-blue-100 border-blue-300 text-blue-700"
+                    : "bg-gray-50 border-gray-300 text-gray-700 hover:bg-gray-100"
+                }`}
+              >
+                OpenAI
+              </button>
             </div>
           </div>
 
@@ -257,6 +297,62 @@ export const ConfigModal: React.FC<ConfigModalProps> = ({ isOpen, onClose, onCon
             </>
           )}
 
+          {aiConfig.provider === "openai" && (
+            <>
+              {/* OpenAI Base URL Configuration */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  OpenAI API Base URL
+                </label>
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    value={aiConfig.openai.baseUrl}
+                    onChange={(e) => handleOpenAIBaseUrlChange(e.target.value)}
+                    placeholder="https://api.openai.com/v1"
+                    className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500"
+                  />
+                  <button
+                    type="button"
+                    onClick={testConnection}
+                    disabled={testStatus === "testing"}
+                    className={`px-3 py-2 rounded-lg font-medium transition-colors ${
+                      testStatus === "success"
+                        ? "bg-green-100 text-green-700"
+                        : testStatus === "error"
+                          ? "bg-red-100 text-red-700"
+                          : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                    }`}
+                  >
+                    {testStatus === "testing" ? (
+                      <RefreshCw className="w-4 h-4 animate-spin" />
+                    ) : (
+                      <Wifi className="w-4 h-4" />
+                    )}
+                  </button>
+                </div>
+                {testStatus === "success" && (
+                  <p className="text-sm text-green-600 mt-1">✓ Connection successful</p>
+                )}
+                {testStatus === "error" && (
+                  <p className="text-sm text-red-600 mt-1">✗ Connection failed</p>
+                )}
+              </div>
+
+              {/* OpenAI API Key Configuration */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">API Key</label>
+                <input
+                  type="password"
+                  value={aiConfig.openai.apikey}
+                  onChange={(e) => handleOpenAIApiKeyChange(e.target.value)}
+                  placeholder="Enter your OpenAI API key"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500"
+                />
+              </div>
+            </>
+          )}
+
           {/* Model Selection */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">Model</label>
@@ -286,25 +382,60 @@ export const ConfigModal: React.FC<ConfigModalProps> = ({ isOpen, onClose, onCon
                   <RefreshCw className={`w-4 h-4 ${isLoadingModels ? "animate-spin" : ""}`} />
                 </button>
               </div>
-            ) : (
+            ) : aiConfig.provider === "gemini" ? (
               <select
                 value={aiConfig.gemini.model}
                 onChange={(e) => handleModelChange(e.target.value)}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500"
               >
-                <option value="gemini-1.5-flash">gemini-1.5-flash</option>
-                <option value="gemini-1.5-pro">gemini-2.5-flash</option>
+                <option value="gemini-2.5-flash">gemini-2.5-flash</option>
+                <option value="gemini-2.5-flash-lite">gemini-2.5-flash-lite</option>
               </select>
+            ) : (
+              <div className="flex gap-2">
+                <select
+                  value={aiConfig.openai.model}
+                  onChange={(e) => handleModelChange(e.target.value)}
+                  className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500"
+                  disabled={isLoadingModels}
+                >
+                  <option value={aiConfig.openai.model}>{aiConfig.openai.model}</option>
+                  {availableModels
+                    .filter((model) => model !== aiConfig.openai.model)
+                    .map((model) => (
+                      <option key={model} value={model}>
+                        {model}
+                      </option>
+                    ))}
+                </select>
+                <button
+                  type="button"
+                  onClick={loadModels}
+                  disabled={isLoadingModels}
+                  className="px-3 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors disabled:opacity-50"
+                >
+                  <RefreshCw className={`w-4 h-4 ${isLoadingModels ? "animate-spin" : ""}`} />
+                </button>
+              </div>
             )}
-            {aiConfig.provider === "ollama" && isLoadingModels && (
-              <p className="text-sm text-gray-500 mt-1">Loading available models...</p>
-            )}
+            {(aiConfig.provider === "ollama" || aiConfig.provider === "openai") &&
+              isLoadingModels && (
+                <p className="text-sm text-gray-500 mt-1">Loading available models...</p>
+              )}
             {aiConfig.provider === "ollama" &&
               availableModels.length === 0 &&
               !isLoadingModels &&
               testStatus === "success" && (
                 <p className="text-sm text-amber-600 mt-1">
                   No models found. Make sure Ollama has models installed.
+                </p>
+              )}
+            {aiConfig.provider === "openai" &&
+              availableModels.length === 0 &&
+              !isLoadingModels &&
+              testStatus === "success" && (
+                <p className="text-sm text-amber-600 mt-1">
+                  No models found. Make sure your OpenAI API key is valid.
                 </p>
               )}
           </div>

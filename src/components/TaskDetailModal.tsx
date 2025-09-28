@@ -1,24 +1,24 @@
-import { useState, useEffect } from "react";
-import {
-  X,
-  Brain,
-  List,
-  Target,
-  Package,
-  MessageCircle,
-  History,
-  Edit2,
-  Save,
-  XCircle,
-  Trash2,
-} from "lucide-react";
-import { get, set } from "idb-keyval";
 import MDEditor from "@uiw/react-md-editor";
+import { get, set } from "idb-keyval";
+import {
+  Brain,
+  Edit2,
+  History,
+  List,
+  MessageCircle,
+  Package,
+  Save,
+  Target,
+  Trash2,
+  X,
+  XCircle,
+} from "lucide-react";
+import { useEffect, useState } from "react";
 import Markdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import type { SmartNote } from "../types";
 import { aiService } from "../services/ai";
 import { configService } from "../services/config";
+import type { SmartNote } from "../types";
 
 interface TaskDetailModalProps {
   note: SmartNote;

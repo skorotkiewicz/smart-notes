@@ -1,7 +1,7 @@
+import { AlertCircle, BookOpen, Clock, Lightbulb, Search, Target } from "lucide-react";
 import { useState } from "react";
-import { Target, Clock, Lightbulb, BookOpen, AlertCircle, Search } from "lucide-react";
-import { NoteCard } from "./NoteCard";
 import type { SmartNote } from "../types";
+import { NoteCard } from "./NoteCard";
 
 interface NotesListProps {
   notes: SmartNote[];
@@ -52,7 +52,7 @@ export const NotesList: React.FC<NotesListProps> = ({
     return (
       note.content.toLowerCase().includes(query) ||
       note.aiAnalysis.summary.toLowerCase().includes(query) ||
-      note.aiAnalysis.actionItems?.some(item => item.toLowerCase().includes(query)) ||
+      note.aiAnalysis.actionItems?.some((item) => item.toLowerCase().includes(query)) ||
       false
     );
   });
@@ -124,7 +124,7 @@ export const NotesList: React.FC<NotesListProps> = ({
           />
         </div>
       </div>
-      
+
       <div className="flex flex-wrap gap-2 mb-6 p-1 bg-gray-100 rounded-xl">
         {filters.map(({ key, label, icon: Icon, count }) => (
           <button
@@ -156,10 +156,9 @@ export const NotesList: React.FC<NotesListProps> = ({
         {filteredNotes.length === 0 ? (
           <div className="text-center py-8">
             <p className="text-gray-400">
-              {searchQuery.trim() 
-                ? `No tasks found matching "${searchQuery}"` 
-                : "No notes in this category"
-              }
+              {searchQuery.trim()
+                ? `No tasks found matching "${searchQuery}"`
+                : "No notes in this category"}
             </p>
             {searchQuery.trim() && (
               <button

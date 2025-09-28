@@ -1,7 +1,7 @@
-import { useState, useEffect } from "react";
-import type { SmartNote } from "../types";
-import { storageService } from "../services/storage";
+import { useEffect, useState } from "react";
 import { aiService } from "../services/ai";
+import { storageService } from "../services/storage";
+import type { SmartNote } from "../types";
 
 export const useNotes = () => {
   const [notes, setNotes] = useState<SmartNote[]>([]);

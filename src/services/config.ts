@@ -1,4 +1,4 @@
-import type { OllamaConfig, AIConfig } from "../types";
+import type { AIConfig, OllamaConfig } from "../types";
 
 const CONFIG_KEY = "ollama-config";
 const AI_CONFIG_KEY = "ai-config";
@@ -12,6 +12,7 @@ const DEFAULT_AI_CONFIG: AIConfig = {
   provider: "ollama",
   ollama: DEFAULT_OLLAMA_CONFIG,
   gemini: { apikey: "", model: "gemini-1.5-flash" },
+  openai: { apikey: "", model: "bitnet-model", baseUrl: "https://api.openai.com/v1" },
 };
 
 export const configService = {
@@ -45,6 +46,7 @@ export const configService = {
           ...parsed,
           ollama: { ...DEFAULT_AI_CONFIG.ollama, ...parsed.ollama },
           gemini: { ...DEFAULT_AI_CONFIG.gemini, ...parsed.gemini },
+          openai: { ...DEFAULT_AI_CONFIG.openai, ...parsed.openai },
         };
       }
     } catch (error) {

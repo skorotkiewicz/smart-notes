@@ -1,13 +1,13 @@
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
+import { ConfigModal } from "./components/ConfigModal";
+import { ConnectionStatus } from "./components/ConnectionStatus";
 import { Header } from "./components/Header";
 import { NoteInput } from "./components/NoteInput";
 import { NotesList } from "./components/NotesList";
-import { ConnectionStatus } from "./components/ConnectionStatus";
+import PWABadge from "./components/PWABadge";
 import { TaskDetailModal } from "./components/TaskDetailModal";
-import { ConfigModal } from "./components/ConfigModal";
 import { useNotes } from "./hooks/useNotes";
 import type { SmartNote } from "./types";
-import PWABadge from "./components/PWABadge";
 
 function App() {
   const {

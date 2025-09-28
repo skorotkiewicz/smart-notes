@@ -1,6 +1,6 @@
-import { useState } from "react";
-import { Send, Brain } from "lucide-react";
 import MDEditor from "@uiw/react-md-editor";
+import { Brain, Send } from "lucide-react";
+import { useState } from "react";
 
 interface NoteInputProps {
   onAddNote: (content: string) => Promise<void>;

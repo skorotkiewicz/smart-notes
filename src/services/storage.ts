@@ -1,4 +1,4 @@
-import { get, set, del, keys } from "idb-keyval";
+import { del, get, keys, set } from "idb-keyval";
 import type { SmartNote } from "../types";
 
 const NOTES_KEY_PREFIX = "smart-note-";

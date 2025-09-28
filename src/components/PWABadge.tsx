@@ -50,7 +50,11 @@ function PWABadge() {
                 Reload
               </button>
             )}
-            <button type="button" className="border border-gray-500/60 outline-none rounded-sm px-3 py-1 bg-transparent" onClick={() => close()}>
+            <button
+              type="button"
+              className="border border-gray-500/60 outline-none rounded-sm px-3 py-1 bg-transparent"
+              onClick={() => close()}
+            >
               Close
             </button>
           </div>
