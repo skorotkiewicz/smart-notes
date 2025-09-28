@@ -16,6 +16,7 @@ import {
 import { useEffect, useState } from "react";
 import Markdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import { useTheme } from "../contexts/ThemeContext";
 import { aiService } from "../services/ai";
 import { configService } from "../services/config";
 import type { SmartNote } from "../types";
@@ -71,6 +72,7 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
   const [showHistory, setShowHistory] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [editedContent, setEditedContent] = useState(note?.content || "");
+  const { theme } = useTheme();
 
   useEffect(() => {
     if (isOpen && note) {
@@ -231,10 +233,7 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
 
             {isEditing ? (
               <div className="mb-4">
-                <div
-                  data-color-mode="light"
-                  className="dark:[&_.w-md-editor]:bg-gray-700 dark:[&_.w-md-editor-text-input]:bg-gray-700 dark:[&_.w-md-editor-text-input]:text-white dark:[&_.w-md-editor-text-input]:placeholder-gray-400"
-                >
+                <div data-color-mode={theme}>
                   <MDEditor
                     value={editedContent}
                     onChange={(value) => setEditedContent(value || "")}
