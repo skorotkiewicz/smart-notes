@@ -1,6 +1,7 @@
 import MDEditor from "@uiw/react-md-editor";
 import { Brain, Send } from "lucide-react";
 import { useState } from "react";
+import { useTheme } from "../contexts/ThemeContext";
 
 interface NoteInputProps {
   onAddNote: (content: string) => Promise<void>;
@@ -9,6 +10,7 @@ interface NoteInputProps {
 
 export const NoteInput: React.FC<NoteInputProps> = ({ onAddNote, isAnalyzing }) => {
   const [content, setContent] = useState("");
+  const { theme } = useTheme();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -29,18 +31,7 @@ export const NoteInput: React.FC<NoteInputProps> = ({ onAddNote, isAnalyzing }) 
     <div className="w-full max-w-4xl mx-auto mb-8">
       <form onSubmit={handleSubmit} className="relative">
         <div className="relative">
-          {/* <textarea
-            ref={textareaRef}
-            value={content}
-            onChange={(e) => setContent(e.target.value)}
-            onKeyDown={handleKeyDown}
-            placeholder="Write your thought, idea, task... AI will help you organize it ✨"
-            className="w-full p-6 pr-16 text-lg border-0 rounded-2xl shadow-lg bg-white/90 backdrop-blur-sm resize-none focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:shadow-xl transition-all duration-300 min-h-[120px] placeholder-gray-400"
-            disabled={isAnalyzing}
-            autoFocus
-          /> */}
-
-          <div data-color-mode="light">
+          <div data-color-mode={theme}>
             <MDEditor
               value={content}
               onChange={(value) => setContent(value || "")}
@@ -67,7 +58,7 @@ export const NoteInput: React.FC<NoteInputProps> = ({ onAddNote, isAnalyzing }) 
           </button>
         </div>
 
-        <p className="text-sm text-gray-500 mt-2 text-center">
+        <p className="text-sm text-gray-500 dark:text-gray-400 mt-2 text-center">
           {isAnalyzing ? (
             <span className="flex items-center justify-center gap-2">
               <Brain className="w-4 h-4 animate-pulse" />

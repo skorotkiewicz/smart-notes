@@ -68,7 +68,7 @@ function App() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
       <ConnectionStatus key={configKey} onOpenConfig={() => setIsConfigOpen(true)} />
       <div className="container mx-auto px-4 py-8">
         <Header totalNotes={totalActiveNotes} urgentCount={urgentCount} />
@@ -84,7 +84,7 @@ function App() {
       </div>
       {urgentCount > 0 && (
         <div className="fixed bottom-4 left-4 right-4 md:left-auto md:right-4 md:w-80">
-          <div className="bg-red-500 text-white p-4 rounded-xl shadow-lg">
+          <div className="bg-red-500 dark:bg-red-600 text-white p-4 rounded-xl shadow-lg">
             <div className="flex items-center gap-2 mb-2">
               <div className="w-2 h-2 bg-white rounded-full animate-pulse"></div>
               <span className="font-medium">You have {urgentCount} urgent tasks!</span>

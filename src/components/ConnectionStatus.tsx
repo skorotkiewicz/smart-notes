@@ -46,8 +46,8 @@ export const ConnectionStatus: React.FC<ConnectionStatusProps> = ({ onOpenConfig
       onClick={onOpenConfig}
       className={`fixed top-4 right-4 flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 hover:shadow-md ${
         isConnected
-          ? "bg-green-100 text-green-700 border border-green-200 hover:bg-green-200"
-          : "bg-red-100 text-red-700 border border-red-200 hover:bg-red-200"
+          ? "bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300 border border-green-200 dark:border-green-700 hover:bg-green-200 dark:hover:bg-green-800"
+          : "bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-300 border border-red-200 dark:border-red-700 hover:bg-red-200 dark:hover:bg-red-800"
       }`}
     >
       {isConnected ? (

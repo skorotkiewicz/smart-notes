@@ -14,7 +14,7 @@ export const Header: React.FC<HeaderProps> = ({ totalNotes, urgentCount }) => {
       <button
         type="button"
         onClick={toggleTheme}
-        className="absolute top-0 right-0 p-2 rounded-lg bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+        className="fixed top-4 left-4 p-2 rounded-lg bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors shadow-md z-40"
         aria-label="Toggle theme"
       >
         {theme === "light" ? (
@@ -31,10 +31,10 @@ export const Header: React.FC<HeaderProps> = ({ totalNotes, urgentCount }) => {
         <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
           Smart Notes
         </h1>
-        <Sparkles className="w-6 h-6 text-purple-500" />
+        <Sparkles className="w-6 h-6 text-purple-500 dark:text-purple-400" />
       </div>
 
-      <p className="text-gray-600 text-lg mb-6">
+      <p className="text-gray-600 dark:text-gray-300 text-lg mb-6">
         Your intelligent assistant for organizing thoughts and tasks
       </p>
 
@@ -42,12 +42,14 @@ export const Header: React.FC<HeaderProps> = ({ totalNotes, urgentCount }) => {
         <div className="flex items-center justify-center gap-6 text-sm">
           <div className="flex items-center gap-2">
             <div className="w-2 h-2 bg-blue-400 rounded-full"></div>
-            <span className="text-gray-600">Total: {totalNotes}</span>
+            <span className="text-gray-600 dark:text-gray-300">Total: {totalNotes}</span>
           </div>
           {urgentCount > 0 && (
             <div className="flex items-center gap-2">
               <div className="w-2 h-2 bg-red-400 rounded-full animate-pulse"></div>
-              <span className="text-red-600 font-medium">Urgent: {urgentCount}</span>
+              <span className="text-red-600 dark:text-red-400 font-medium">
+                Urgent: {urgentCount}
+              </span>
             </div>
           )}
         </div>

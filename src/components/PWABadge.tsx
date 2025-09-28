@@ -30,7 +30,7 @@ function PWABadge() {
   return (
     <div role="alert" aria-labelledby="toast-message">
       {(offlineReady || needRefresh) && (
-        <div className="fixed right-0 bottom-0 m-4 p-3 border border-gray-500/60 rounded z-10 text-left shadow-lg bg-white">
+        <div className="fixed right-0 bottom-0 m-4 p-3 border border-gray-500/60 dark:border-gray-400/60 rounded z-10 text-left shadow-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white">
           <div className="mb-2">
             {offlineReady ? (
               <span id="toast-message">App ready to work offline</span>
@@ -44,7 +44,7 @@ function PWABadge() {
             {needRefresh && (
               <button
                 type="button"
-                className="border border-gray-500/60 outline-none rounded-sm px-3 py-1 bg-transparent"
+                className="border border-gray-500/60 dark:border-gray-400/60 outline-none rounded-sm px-3 py-1 bg-transparent text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700"
                 onClick={() => updateServiceWorker(true)}
               >
                 Reload
